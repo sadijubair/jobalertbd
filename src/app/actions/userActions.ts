@@ -1,7 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { getSession } from "@/lib/auth";
+import { getSession, clearSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
 
 // Verify session helper
@@ -9,6 +9,13 @@ async function requireAuth() {
   const session = await getSession();
   if (!session) {
     throw new Error("Unauthorized access");
+  }
+  const user = await db.user.findUnique({
+    where: { id: session.userId },
+  });
+  if (!user) {
+    await clearSession();
+    throw new Error("Unauthorized session: user not found");
   }
   return session;
 }

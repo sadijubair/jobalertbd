@@ -293,7 +293,7 @@ export async function sendNewsletter(data: { subject: string; body: string; type
       where: data.type === "ALL" ? {} : { type: data.type },
     });
 
-    const recipients = subscribers.map((subscriber) => subscriber.email);
+    const recipients = subscribers.map((subscriber: { email: string }) => subscriber.email);
     if (recipients.length === 0) {
       return { success: true, count: 0 };
     }

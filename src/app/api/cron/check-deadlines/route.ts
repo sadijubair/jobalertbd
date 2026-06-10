@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import webpush from "web-push";
-import nodemailer from "nodemailer";
 import { formatDateDMY } from "@/lib/format";
+import { sendEmail } from "@/lib/email";
 
 // Configure Web Push VAPID keys if present
 const vapidKeys = {
@@ -20,32 +20,20 @@ if (vapidKeys.publicKey && vapidKeys.privateKey) {
 
 // Helper: Send email alert
 async function sendEmailAlert(email: string, title: string, content: string) {
-  const smtpUser = process.env.SMTP_USER;
-  const smtpPass = process.env.SMTP_PASS;
-
-  if (!smtpUser || !smtpPass) {
-    console.log(`[Email Mock] To: ${email} | Title: ${title} | Body: ${content}`);
-    return;
-  }
-
   try {
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      auth: {
-        user: smtpUser,
-        pass: smtpPass,
-      },
-    });
-
-    await transporter.sendMail({
-      from: `"JobAlert BD" <${smtpUser}>`,
+    const result = await sendEmail({
       to: email,
       subject: title,
       text: content,
     });
-    console.log(`Email alert sent successfully to ${email}`);
+    if (result.accepted > 0) {
+      console.log(`Email alert sent successfully to ${email}`);
+      return true;
+    }
+    return false;
   } catch (error) {
     console.error("Nodemailer error:", error);
+    return false;
   }
 }
 
@@ -204,16 +192,18 @@ export async function GET(request: NextRequest) {
 
       // 3. Email Notification
       if (prefs.emailEnabled && user.email) {
-        await sendEmailAlert(user.email, title, content);
+        const emailSent = await sendEmailAlert(user.email, title, content);
         
-        await db.notificationLog.create({
-          data: {
-            userId: user.id,
-            jobId: job.id,
-            type: thresholdKey,
-            channel: "EMAIL",
-          },
-        });
+        if (emailSent) {
+          await db.notificationLog.create({
+            data: {
+              userId: user.id,
+              jobId: job.id,
+              type: thresholdKey,
+              channel: "EMAIL",
+            },
+          });
+        }
       }
     }
 

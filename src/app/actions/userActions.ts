@@ -3,15 +3,20 @@
 import { db } from "@/lib/db";
 import { getSession, clearSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
-import type { Prisma } from "@prisma/client";
 
-type UserJobWithJob = Prisma.UserJobGetPayload<{
-  include: {
-    job: {
-      include: { posts: true };
-    };
+type UserJobWithJob = {
+  job: {
+    id: string;
+    organization: string;
+    deadline: Date;
+    applicationFee: number;
+    isFeatured: boolean;
+    circularLink?: string | null;
+    applicationLink?: string | null;
+    description?: string | null;
+    posts?: { id: string; name: string; postsCount: number }[];
   };
-}>;
+};
 
 // Verify session helper
 async function requireAuth() {
@@ -40,7 +45,7 @@ export async function getUserDashboardData() {
     });
 
     // 2. Upcoming Deadlines (jobs followed by user where deadline >= now)
-    const upcomingJobs = await db.userJob.findMany({
+    const upcomingJobs = (await db.userJob.findMany({
       where: {
         userId: session.userId,
         job: { deadline: { gte: now } },
@@ -54,7 +59,7 @@ export async function getUserDashboardData() {
         job: { deadline: "asc" },
       },
       take: 5,
-    });
+    })) as UserJobWithJob[];
 
     // 3. Unread Notifications Count
     const unreadNotificationsCount = await db.notification.count({
@@ -84,7 +89,7 @@ export async function getUserJobs() {
   try {
     const session = await requireAuth();
     
-    const userJobs = await db.userJob.findMany({
+    const userJobs = (await db.userJob.findMany({
       where: { userId: session.userId },
       include: {
         job: {
@@ -94,7 +99,7 @@ export async function getUserJobs() {
       orderBy: {
         job: { deadline: "asc" },
       },
-    });
+    })) as UserJobWithJob[];
 
     return { jobs: userJobs.map((uj: UserJobWithJob) => uj.job) };
   } catch (error: any) {

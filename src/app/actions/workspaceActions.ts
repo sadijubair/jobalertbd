@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import { isEmailConfigured, sendEmail, textToHtml } from "@/lib/email";
 
 // Verify admin helper
 async function requireAdmin() {
@@ -35,7 +36,9 @@ export async function getWorkspaceStats() {
       totalTracked,
     };
   } catch (error: any) {
-    console.error("Workspace stats error:", error);
+    if (error.message !== "Unauthorized admin access") {
+      console.error("Workspace stats error:", error);
+    }
     return { error: error.message || "Failed to load stats" };
   }
 }
@@ -277,27 +280,47 @@ export async function getWorkspaceSubscribers() {
 export async function sendNewsletter(data: { subject: string; body: string; type: string }) {
   try {
     await requireAdmin();
-    // Simulate sending email to subscribers (will write to system settings/logs in actual push notifications, or mock send for now)
+
+    if (!data.subject.trim() || !data.body.trim()) {
+      return { error: "Subject and body are required" };
+    }
+
+    if (!isEmailConfigured()) {
+      return { error: "SMTP is not configured. Add SMTP_USER and SMTP_PASS in Vercel." };
+    }
+
     const subscribers = await db.newsletterSubscriber.findMany({
       where: data.type === "ALL" ? {} : { type: data.type },
     });
 
-    console.log(`Sending newsletter: "${data.subject}" to ${subscribers.length} subscribers.`);
+    const recipients = subscribers.map((subscriber) => subscriber.email);
+    if (recipients.length === 0) {
+      return { success: true, count: 0 };
+    }
+
+    const delivery = await sendEmail({
+      to: process.env.SMTP_TO || process.env.SMTP_USER,
+      bcc: recipients,
+      subject: data.subject.trim(),
+      text: data.body.trim(),
+      html: textToHtml(data.body.trim()),
+    });
     
-    // Save standard system setting for newsletter delivery history
     await db.systemSettings.create({
       data: {
         key: `NEWSLETTER_LOG_${Date.now()}`,
         value: JSON.stringify({
-          subject: data.subject,
+          subject: data.subject.trim(),
           subscribersCount: subscribers.length,
+          acceptedCount: delivery.accepted,
+          rejectedCount: delivery.rejected,
           type: data.type,
           sentAt: new Date(),
         }),
       },
     });
 
-    return { success: true, count: subscribers.length };
+    return { success: true, count: delivery.accepted };
   } catch (error: any) {
     return { error: error.message || "Failed to send newsletter" };
   }

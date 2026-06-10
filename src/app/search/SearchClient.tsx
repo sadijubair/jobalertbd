@@ -3,6 +3,15 @@
 import { useLanguage } from "@/components/LanguageProvider";
 import { JobCard } from "@/components/JobCard";
 import { getPublicJobs } from "@/app/actions/jobActions";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useState, useEffect, useTransition } from "react";
 import { Search, SlidersHorizontal, Calendar, Star, Compass } from "lucide-react";
 
@@ -44,14 +53,17 @@ export function SearchClient({ initialJobs, isLoggedIn, trackedJobIds }: SearchC
 
   const filtersList = [
     { id: "all", label: t("filter_all"), icon: Compass },
-    { id: "today", label: t("filter_today"), icon: Calendar },
-    { id: "3days", label: t("filter_3days"), icon: Calendar },
-    { id: "7days", label: t("filter_7days"), icon: Calendar },
-    { id: "15days", label: t("filter_15days"), icon: Calendar },
     { id: "newest", label: t("filter_newest"), icon: Star },
     { id: "most_saved", label: t("filter_most_saved"), icon: Star },
     { id: "featured", label: t("filter_featured"), icon: Star },
   ];
+  const deadlineFilters = [
+    { id: "today", label: t("filter_today") },
+    { id: "3days", label: t("filter_3days") },
+    { id: "7days", label: t("filter_7days") },
+    { id: "15days", label: t("filter_15days") },
+  ];
+  const selectedDeadline = deadlineFilters.find((item) => item.id === filter);
 
   const trackedSet = new Set(trackedJobIds);
 
@@ -80,26 +92,52 @@ export function SearchClient({ initialJobs, isLoggedIn, trackedJobIds }: SearchC
           <SlidersHorizontal className="h-4 w-4" />
           {t("search_filters")}
         </div>
-        {/* Horizontal filters container */}
-        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 scrollbar-none">
-          {filtersList.map((item) => {
-            const Icon = item.icon;
-            const isSelected = filter === item.id;
-            return (
-              <button
-                key={item.id}
-                onClick={() => setFilter(item.id)}
-                className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold whitespace-nowrap transition-all ${
-                  isSelected
-                    ? "bg-primary text-primary-foreground border-primary shadow-sm"
-                    : "bg-card text-muted-foreground border-border hover:text-foreground hover:bg-muted"
-                }`}
-              >
-                <Icon className="h-3.5 w-3.5" />
-                {item.label}
-              </button>
-            );
-          })}
+        <div className="flex flex-col gap-2 sm:flex-row sm:items-center">
+          <Select value={selectedDeadline ? filter : ""} onValueChange={setFilter}>
+            <SelectTrigger
+              className={`h-10 w-full sm:max-w-64 ${
+                selectedDeadline
+                  ? "border-primary bg-primary text-primary-foreground data-placeholder:text-primary-foreground [&_svg]:text-primary-foreground"
+                  : "bg-card text-muted-foreground"
+              }`}
+            >
+              <span className="flex min-w-0 items-center gap-1.5">
+                <Calendar className="h-3.5 w-3.5 shrink-0" />
+                <SelectValue placeholder="Deadline based" />
+              </span>
+            </SelectTrigger>
+            <SelectContent>
+              <SelectGroup>
+                <SelectLabel>Deadline based</SelectLabel>
+                {deadlineFilters.map((item) => (
+                  <SelectItem key={item.id} value={item.id}>
+                    {item.label}
+                  </SelectItem>
+                ))}
+              </SelectGroup>
+            </SelectContent>
+          </Select>
+
+          <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 scrollbar-none sm:mx-0 sm:px-0 sm:pb-0">
+            {filtersList.map((item) => {
+              const Icon = item.icon;
+              const isSelected = filter === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => setFilter(item.id)}
+                  className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold whitespace-nowrap transition-all ${
+                    isSelected
+                      ? "bg-primary text-primary-foreground border-primary shadow-sm"
+                      : "bg-card text-muted-foreground border-border hover:text-foreground hover:bg-muted"
+                  }`}
+                >
+                  <Icon className="h-3.5 w-3.5" />
+                  {item.label}
+                </button>
+              );
+            })}
+          </div>
         </div>
       </div>
 

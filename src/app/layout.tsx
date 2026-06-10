@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/ThemeProvider";
 import { LanguageProvider } from "@/components/LanguageProvider";
 import { Navigation } from "@/components/Navigation";
 import { PWARegister } from "@/components/PWARegister";
+import { getSession } from "@/lib/auth";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -40,11 +41,13 @@ export const viewport: Viewport = {
   themeColor: "#2563eb",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await getSession();
+
   return (
     <html
       lang="en"
@@ -55,7 +58,7 @@ export default function RootLayout({
         <LanguageProvider>
           <ThemeProvider>
             <main className="flex-1 pb-16 md:pb-0">{children}</main>
-            <Navigation />
+            <Navigation isLoggedIn={!!session} role={session?.role} />
             <PWARegister />
           </ThemeProvider>
         </LanguageProvider>

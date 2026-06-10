@@ -2,10 +2,15 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Home, Search, Briefcase, Bell, User } from "lucide-react";
+import { Home, Search, Briefcase, Bell, User, LogIn } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 
-export function Navigation() {
+interface NavigationProps {
+  isLoggedIn: boolean;
+  role?: "USER" | "ADMIN";
+}
+
+export function Navigation({ isLoggedIn, role }: NavigationProps) {
   const pathname = usePathname();
   const { t } = useLanguage();
 
@@ -14,17 +19,28 @@ export function Navigation() {
     return null;
   }
 
+  const accountItems = !isLoggedIn
+    ? [{ href: "/api/auth/google", label: t("login"), icon: LogIn }]
+    : role === "ADMIN"
+      ? [{ href: "/workspace/dashboard", label: t("nav_workspace"), icon: Briefcase }]
+      : [
+          { href: "/app/jobs", label: t("nav_my_jobs"), icon: Briefcase },
+          { href: "/app/notifications", label: t("nav_notifications"), icon: Bell },
+          { href: "/app/profile", label: t("nav_profile"), icon: User },
+        ];
+
   const navItems = [
     { href: "/", label: t("nav_home"), icon: Home },
     { href: "/search", label: t("nav_search"), icon: Search },
-    { href: "/app/jobs", label: t("nav_my_jobs"), icon: Briefcase },
-    { href: "/app/notifications", label: t("nav_notifications"), icon: Bell },
-    { href: "/app/profile", label: t("nav_profile"), icon: User },
+    ...accountItems,
   ];
 
   return (
     <nav className="safe-pb fixed bottom-0 left-0 right-0 z-50 border-t border-border/80 bg-background/95 shadow-[0_-12px_30px_rgba(31,25,16,0.08)] backdrop-blur-md md:hidden">
-      <div className="mx-auto grid h-16 max-w-lg grid-cols-5 px-2">
+      <div
+        className="mx-auto grid h-16 max-w-lg px-2"
+        style={{ gridTemplateColumns: `repeat(${navItems.length}, minmax(0, 1fr))` }}
+      >
         {navItems.map((item) => {
           const Icon = item.icon;
           // Check if active: exact match for root, prefix match for app paths

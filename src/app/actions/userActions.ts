@@ -3,6 +3,15 @@
 import { db } from "@/lib/db";
 import { getSession, clearSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import type { Prisma } from "@prisma/client";
+
+type UserJobWithJob = Prisma.UserJobGetPayload<{
+  include: {
+    job: {
+      include: { posts: true };
+    };
+  };
+}>;
 
 // Verify session helper
 async function requireAuth() {
@@ -61,7 +70,7 @@ export async function getUserDashboardData() {
 
     return {
       trackedCount,
-      upcomingJobs: upcomingJobs.map((uj) => uj.job),
+      upcomingJobs: upcomingJobs.map((uj: UserJobWithJob) => uj.job),
       unreadNotificationsCount,
       recentNotifications,
     };
@@ -87,7 +96,7 @@ export async function getUserJobs() {
       },
     });
 
-    return { jobs: userJobs.map((uj) => uj.job) };
+    return { jobs: userJobs.map((uj: UserJobWithJob) => uj.job) };
   } catch (error: any) {
     console.error("Error fetching user jobs:", error);
     return { jobs: [], error: error.message || "Failed to load tracked jobs" };

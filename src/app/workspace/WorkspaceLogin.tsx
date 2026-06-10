@@ -1,6 +1,5 @@
 "use client";
 
-import { useLanguage } from "@/components/LanguageProvider";
 import { adminLoginAction } from "@/app/actions/authActions";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
@@ -59,8 +58,7 @@ export function WorkspaceLogin() {
             type="text"
             name="username"
             required
-            defaultValue="admin"
-            placeholder="admin"
+            placeholder="Username or email"
             className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
           />
         </div>
@@ -75,7 +73,6 @@ export function WorkspaceLogin() {
             type="password"
             name="password"
             required
-            defaultValue="admin123"
             placeholder="••••••••"
             className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
           />
@@ -97,10 +94,6 @@ export function WorkspaceLogin() {
         </Link>
       </div>
 
-      <div className="p-4 rounded-lg bg-blue-500/5 border border-blue-500/10 text-xs text-muted-foreground space-y-1">
-        <p className="font-bold text-blue-600 dark:text-blue-400">First Time Setup Hint:</p>
-        <p>No admin credentials exist yet. Logging in with <span className="font-bold">admin</span> / <span className="font-bold">admin123</span> will automatically seed a default administrator account.</p>
-      </div>
     </div>
   );
 }

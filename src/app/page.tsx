@@ -84,7 +84,7 @@ export default async function HomePage() {
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
               <Link
                 href="/search"
-                className="surface-panel flex h-12 min-w-0 flex-1 items-center gap-3 rounded-lg px-4 text-sm text-muted-foreground transition-all hover:border-primary/40 hover:text-foreground lg:max-w-xl"
+                className="surface-panel flex min-h-14 min-w-0 flex-1 items-center gap-3 rounded-lg px-4 py-3 text-sm text-muted-foreground transition-all hover:border-primary/40 hover:text-foreground sm:min-h-12 sm:py-0 lg:max-w-xl"
               >
                 <Search className="h-5 w-5 shrink-0 text-primary" />
                 <span className="truncate">Search organization or post name...</span>

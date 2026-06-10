@@ -4,7 +4,38 @@ import { db } from "@/lib/db";
 import { setSession } from "@/lib/auth";
 import bcrypt from "bcryptjs";
 
-export async function adminLoginAction(prevState: any, formData: FormData) {
+async function ensureWorkspaceUser(username: string, password: string, name: string) {
+  const passwordHash = await bcrypt.hash(password, 10);
+
+  await db.workspaceUser.upsert({
+    where: { username },
+    update: {
+      passwordHash,
+      name,
+      role: "ADMIN",
+    },
+    create: {
+      username,
+      passwordHash,
+      name,
+      role: "ADMIN",
+    },
+  });
+}
+
+async function seedConfiguredWorkspaceUser() {
+  const username = process.env.WORKSPACE_SEED_USERNAME?.trim();
+  const password = process.env.WORKSPACE_SEED_PASSWORD;
+  const name = process.env.WORKSPACE_SEED_NAME?.trim() || "Workspace Admin";
+
+  if (!username || !password) {
+    return;
+  }
+
+  await ensureWorkspaceUser(username, password, name);
+}
+
+export async function adminLoginAction(prevState: unknown, formData: FormData) {
   const username = formData.get("username")?.toString().trim();
   const password = formData.get("password")?.toString();
 
@@ -13,22 +44,10 @@ export async function adminLoginAction(prevState: any, formData: FormData) {
   }
 
   try {
-    // 1. Check if we need to seed the default admin
-    const adminCount = await db.workspaceUser.count();
-    if (adminCount === 0) {
-      // Seed default admin: admin / admin123
-      const hashedPassword = await bcrypt.hash("admin123", 10);
-      await db.workspaceUser.create({
-        data: {
-          username: "admin",
-          passwordHash: hashedPassword,
-          name: "Workspace Admin",
-          role: "ADMIN",
-        },
-      });
-    }
+    await seedConfiguredWorkspaceUser();
 
-    // 2. Fetch the admin user
+    // Fetch the admin user. Initial workspace users should be created in the
+    // database or through WORKSPACE_SEED_* environment variables.
     const admin = await db.workspaceUser.findUnique({
       where: { username },
     });
@@ -47,7 +66,9 @@ export async function adminLoginAction(prevState: any, formData: FormData) {
     await setSession({
       userId: admin.id,
       name: admin.name,
-      email: `${admin.username}@jobalert.bd`,
+      email: admin.username.includes("@")
+        ? admin.username
+        : `${admin.username}@jobalert.bd`,
       role: "ADMIN",
     });
 

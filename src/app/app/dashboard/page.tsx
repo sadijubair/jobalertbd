@@ -33,7 +33,7 @@ export default async function DashboardPage() {
     where: { userId: session.userId },
     select: { jobId: true },
   });
-  userJobs.forEach((uj) => trackedJobIds.add(uj.jobId));
+  userJobs.forEach((uj: { jobId: string }) => trackedJobIds.add(uj.jobId));
 
   const isLoggedIn = true;
 

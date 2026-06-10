@@ -14,7 +14,7 @@ export default async function SearchPage() {
       where: { userId: session.userId },
       select: { jobId: true },
     });
-    userJobs.forEach((uj) => trackedJobIds.push(uj.jobId));
+    userJobs.forEach((uj: { jobId: string }) => trackedJobIds.push(uj.jobId));
   }
 
   return (

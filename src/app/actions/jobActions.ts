@@ -3,13 +3,17 @@
 import { db } from "@/lib/db";
 import { getSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import type { Job } from "@/types/models";
 
-export async function getPublicJobs(searchQuery = "", filter = "all") {
+export async function getPublicJobs(
+  searchQuery = "",
+  filter = "all"
+): Promise<{ jobs: Job[]; error?: string }> {
   try {
     const now = new Date();
 
     // Base query conditions (only global active jobs on public page)
-    const baseWhere: any = {
+    const baseWhere: Record<string, unknown> = {
       isGlobal: true,
     };
 
@@ -17,7 +21,7 @@ export async function getPublicJobs(searchQuery = "", filter = "all") {
     if (searchQuery) {
       baseWhere.OR = [
         { organization: { contains: searchQuery } },
-        { posts: { some: { name: { contains: searchQuery } } } }
+        { posts: { some: { name: { contains: searchQuery } } } },
       ];
     }
 
@@ -28,50 +32,34 @@ export async function getPublicJobs(searchQuery = "", filter = "all") {
       startOfDay.setHours(0, 0, 0, 0);
       const endOfDay = new Date();
       endOfDay.setHours(23, 59, 59, 999);
-      baseWhere.deadline = {
-        gte: startOfDay,
-        lte: endOfDay,
-      };
+      baseWhere.deadline = { gte: startOfDay, lte: endOfDay };
     } else if (filter === "3days") {
       filterDateLimit.setDate(now.getDate() + 3);
-      baseWhere.deadline = {
-        gte: now,
-        lte: filterDateLimit,
-      };
+      baseWhere.deadline = { gte: now, lte: filterDateLimit };
     } else if (filter === "7days") {
       filterDateLimit.setDate(now.getDate() + 7);
-      baseWhere.deadline = {
-        gte: now,
-        lte: filterDateLimit,
-      };
+      baseWhere.deadline = { gte: now, lte: filterDateLimit };
     } else if (filter === "15days") {
       filterDateLimit.setDate(now.getDate() + 15);
-      baseWhere.deadline = {
-        gte: now,
-        lte: filterDateLimit,
-      };
+      baseWhere.deadline = { gte: now, lte: filterDateLimit };
     } else if (filter === "featured") {
       baseWhere.isFeatured = true;
     } else if (filter === "expired") {
-      baseWhere.deadline = {
-        lt: now,
-      };
+      baseWhere.deadline = { lt: now };
     }
 
-    let orderBy: any = { createdAt: "desc" };
+    let orderBy: Record<string, string> = { createdAt: "desc" };
     if (filter === "newest") {
       orderBy = { createdAt: "desc" };
     } else if (filter === "most_saved") {
       orderBy = { trackedCount: "desc" };
     }
 
-    const jobs = await db.job.findMany({
+    const jobs = (await db.job.findMany({
       where: baseWhere,
-      include: {
-        posts: true,
-      },
+      include: { posts: true },
       orderBy,
-    });
+    })) as Job[];
 
     return { jobs };
   } catch (error) {
@@ -80,41 +68,46 @@ export async function getPublicJobs(searchQuery = "", filter = "all") {
   }
 }
 
-export async function getHomepageSections() {
+export async function getHomepageSections(): Promise<{
+  featured: Job[];
+  latest: Job[];
+  deadlineSoon: Job[];
+  popular: Job[];
+}> {
   try {
     const now = new Date();
-    
+
     // 1. Featured Jobs
-    const featured = await db.job.findMany({
+    const featured = (await db.job.findMany({
       where: { isGlobal: true, isFeatured: true, deadline: { gte: now } },
       include: { posts: true },
       take: 5,
       orderBy: { createdAt: "desc" },
-    });
+    })) as Job[];
 
     // 2. Latest Jobs
-    const latest = await db.job.findMany({
+    const latest = (await db.job.findMany({
       where: { isGlobal: true, deadline: { gte: now } },
       include: { posts: true },
       take: 10,
       orderBy: { createdAt: "desc" },
-    });
+    })) as Job[];
 
     // 3. Deadline Soon Jobs
-    const deadlineSoon = await db.job.findMany({
+    const deadlineSoon = (await db.job.findMany({
       where: { isGlobal: true, deadline: { gte: now } },
       include: { posts: true },
       take: 10,
       orderBy: { deadline: "asc" },
-    });
+    })) as Job[];
 
     // 4. Popular Jobs
-    const popular = await db.job.findMany({
+    const popular = (await db.job.findMany({
       where: { isGlobal: true, deadline: { gte: now } },
       include: { posts: true },
       take: 10,
       orderBy: { trackedCount: "desc" },
-    });
+    })) as Job[];
 
     return { featured, latest, deadlineSoon, popular };
   } catch (error) {

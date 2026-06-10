@@ -1,5 +1,6 @@
 import { cookies } from "next/headers";
 import crypto from "crypto";
+import { db } from "./db";
 
 const SESSION_COOKIE_NAME = "jobalert_session";
 // Ensure we have a 32-byte secret. Fallback only for local dev.
@@ -64,7 +65,22 @@ export async function getSession(): Promise<SessionUser | null> {
     const decrypted = decrypt(sessionCookie.value);
     if (!decrypted) return null;
     
-    return JSON.parse(decrypted) as SessionUser;
+    const session = JSON.parse(decrypted) as SessionUser;
+    
+    // Verify user/admin exists in the database
+    if (session.role === "ADMIN") {
+      const admin = await db.workspaceUser.findUnique({
+        where: { id: session.userId },
+      });
+      if (!admin) return null;
+    } else {
+      const user = await db.user.findUnique({
+        where: { id: session.userId },
+      });
+      if (!user) return null;
+    }
+    
+    return session;
   } catch (error) {
     return null;
   }

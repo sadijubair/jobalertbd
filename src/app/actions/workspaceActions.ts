@@ -98,7 +98,7 @@ export async function createGlobalJob(data: {
 
     if (prefUsers.length > 0) {
       await db.notification.createMany({
-        data: prefUsers.map((pref) => ({
+        data: prefUsers.map((pref: { userId: string }) => ({
           userId: pref.userId,
           title: "New Job Published",
           content: `${data.organization} has published a new circular. Track it now!`,

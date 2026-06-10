@@ -3,6 +3,7 @@
 import { db } from "@/lib/db";
 import { getSession, clearSession } from "@/lib/auth";
 import { revalidatePath } from "next/cache";
+import type { Job, Notification } from "@/types/models";
 
 type UserJobWithJob = {
   job: {
@@ -34,7 +35,15 @@ async function requireAuth() {
   return session;
 }
 
-export async function getUserDashboardData() {
+export async function getUserDashboardData(): Promise<
+  | {
+      trackedCount: number;
+      upcomingJobs: Job[];
+      unreadNotificationsCount: number;
+      recentNotifications: Notification[];
+    }
+  | { error: string }
+> {
   try {
     const session = await requireAuth();
     const now = new Date();
@@ -67,15 +76,15 @@ export async function getUserDashboardData() {
     });
 
     // 4. Recent Notifications
-    const recentNotifications = await db.notification.findMany({
+    const recentNotifications = (await db.notification.findMany({
       where: { userId: session.userId },
       orderBy: { createdAt: "desc" },
       take: 4,
-    });
+    })) as Notification[];
 
     return {
       trackedCount,
-      upcomingJobs: upcomingJobs.map((uj: UserJobWithJob) => uj.job),
+      upcomingJobs: upcomingJobs.map((uj: UserJobWithJob) => uj.job) as Job[],
       unreadNotificationsCount,
       recentNotifications,
     };

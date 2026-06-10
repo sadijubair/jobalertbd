@@ -1,0 +1,153 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider   = "prisma-client-js"
+  engineType = "library"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+model User {
+  id                      String                   @id @default(uuid())
+  email                   String                   @unique
+  name                    String?
+  avatar                  String?
+  status                  String                   @default("ACTIVE") // ACTIVE, SUSPENDED
+  createdAt               DateTime                 @default(now())
+  updatedAt               DateTime                 @updatedAt
+  userJobs                UserJob[]
+  notifications           Notification[]
+  preferences             NotificationPreference?
+  pushSubscriptions       PushSubscription[]
+  reports                 Report[]
+  notificationLogs        NotificationLog[]
+}
+
+model WorkspaceUser {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  passwordHash String
+  name         String
+  role         String   @default("ADMIN") // e.g. ADMIN
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Job {
+  id              String      @id @default(uuid())
+  organization    String
+  applicationLink String
+  circularLink    String
+  applicationFee  Float       @default(0)
+  deadline        DateTime
+  description     String?
+  isGlobal        Boolean     @default(false)
+  isFeatured      Boolean     @default(false)
+  isExpired       Boolean     @default(false)
+  trackedCount    Int         @default(0)
+  createdById     String?
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+  posts           JobPost[]
+  userJobs        UserJob[]
+  reports         Report[]
+  notificationLogs NotificationLog[]
+}
+
+model JobPost {
+  id         String   @id @default(uuid())
+  jobId      String
+  job        Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  name       String
+  postsCount Int
+  grade      String
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
+
+model UserJob {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, jobId])
+}
+
+model Notification {
+  id        String   @id @default(uuid())
+  userId    String?  // Nullable for broadcast announcements
+  user      User?    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  title     String
+  content   String
+  type      String   // SYSTEM, REMINDER, NEW_JOB, ANNOUNCEMENT
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model NotificationPreference {
+  id               String  @id @default(uuid())
+  userId           String  @unique
+  user             User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  newJobsEnabled   Boolean @default(true)
+  deadline15Days   Boolean @default(true)
+  deadline7Days    Boolean @default(true)
+  deadline3Days    Boolean @default(true)
+  deadlineToday    Boolean @default(true)
+  inAppEnabled     Boolean @default(true)
+  pushEnabled      Boolean @default(true)
+  emailEnabled     Boolean @default(true)
+}
+
+model NotificationLog {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  jobId     String
+  job       Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  type      String   // 15_DAYS, 7_DAYS, 3_DAYS, TODAY
+  channel   String   // IN_APP, PUSH, EMAIL
+  sentAt    DateTime @default(now())
+}
+
+model PushSubscription {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  endpoint  String   @unique
+  keysAuth  String
+  keysP256dh String
+  createdAt DateTime @default(now())
+}
+
+model NewsletterSubscriber {
+  id        String   @id @default(uuid())
+  email     String   @unique
+  type      String   @default("WEEKLY") // INSTANT, DAILY, WEEKLY
+  createdAt DateTime @default(now())
+}
+
+model Report {
+  id          String   @id @default(uuid())
+  jobId       String
+  job         Job      @relation(fields: [jobId], references: [id], onDelete: Cascade)
+  reporterId  String?
+  reporter    User?    @relation(fields: [reporterId], references: [id], onDelete: SetNull)
+  type        String   // WRONG_DEADLINE, BROKEN_LINK, DUPLICATE_JOB, FAKE_JOB
+  description String
+  status      String   @default("PENDING") // PENDING, RESOLVED
+  createdAt   DateTime @default(now())
+}
+
+model SystemSettings {
+  id        String   @id @default(uuid())
+  key       String   @unique
+  value     String
+  updatedAt DateTime @updatedAt
+}

@@ -32,19 +32,20 @@ export default async function MyJobsPage() {
       {/* Global Header */}
       <Header session={session} />
 
-      <main className="flex-1 mx-auto w-full max-w-5xl px-4 sm:px-6 py-6 pb-24 md:pb-12">
-        <div className="flex justify-between items-center mb-6">
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-24 sm:px-6 md:pb-12">
+        <div className="mb-6 flex items-center justify-between gap-4 border-b border-border/80 pb-5">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
+            <p className="eyebrow mb-2">Saved desk</p>
+            <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
               My Tracked Jobs
             </h1>
-            <p className="text-sm text-muted-foreground mt-0.5">
+            <p className="mt-1 text-sm text-muted-foreground">
               Personal job trackers and global jobs you follow.
             </p>
           </div>
           <Link
             href="/app/jobs/add"
-            className="flex items-center gap-1 bg-primary text-primary-foreground font-bold text-xs sm:text-sm px-4 py-2 rounded-xl hover:bg-primary/95 transition-all shadow-sm active:scale-98"
+            className="inline-flex items-center gap-1 rounded-lg bg-primary px-4 py-2 text-xs font-bold text-primary-foreground shadow-sm transition-all hover:bg-primary/90 sm:text-sm"
           >
             <Plus className="h-4.5 w-4.5" />
             Add Job
@@ -52,7 +53,7 @@ export default async function MyJobsPage() {
         </div>
 
         {res.jobs && res.jobs.length > 0 ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {res.jobs.map((job) => (
               <JobCard
                 key={job.id}
@@ -63,7 +64,7 @@ export default async function MyJobsPage() {
             ))}
           </div>
         ) : (
-          <div className="py-24 text-center border-2 border-dashed border-border rounded-3xl bg-card space-y-4">
+          <div className="surface-panel space-y-4 rounded-lg border-dashed py-24 text-center">
             <Briefcase className="h-16 w-16 text-muted-foreground mx-auto stroke-1" />
             <div className="max-w-xs mx-auto space-y-1">
               <h3 className="font-extrabold text-lg text-foreground">No circulars tracked yet</h3>
@@ -72,10 +73,10 @@ export default async function MyJobsPage() {
               </p>
             </div>
             <div className="pt-2 flex justify-center gap-2">
-              <Link href="/" className="px-4 py-2.5 rounded-xl border border-border bg-card font-bold text-sm text-foreground hover:bg-muted transition-all">
+              <Link href="/" className="rounded-lg border border-border bg-card px-4 py-2.5 text-sm font-bold text-foreground transition-all hover:bg-muted">
                 Browse Global
               </Link>
-              <Link href="/app/jobs/add" className="px-4 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/95 transition-all shadow-sm">
+              <Link href="/app/jobs/add" className="rounded-lg bg-primary px-4 py-2.5 text-sm font-bold text-primary-foreground shadow-sm transition-all hover:bg-primary/90">
                 Create Custom Tracker
               </Link>
             </div>

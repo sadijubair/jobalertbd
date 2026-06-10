@@ -4,8 +4,9 @@ import { useLanguage } from "@/components/LanguageProvider";
 import { createUserPersonalJob } from "@/app/actions/userActions";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Briefcase, Calendar, Link as LinkIcon, DollarSign, Plus, Trash2, ArrowLeft } from "lucide-react";
+import { Briefcase, Calendar, Link as LinkIcon, Plus, Trash2, ArrowLeft } from "lucide-react";
 import Link from "next/link";
+import { TakaIcon } from "@/components/AppIcons";
 
 export function AddJobForm() {
   const { t } = useLanguage();
@@ -78,7 +79,7 @@ export function AddJobForm() {
         {t("back")}
       </Link>
 
-      <div className="p-6 rounded-3xl border border-border bg-card shadow-sm space-y-6">
+      <div className="p-6 rounded-lg border border-border bg-card shadow-sm space-y-6">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground tracking-tight">
             {t("add_job_title")}
@@ -101,14 +102,14 @@ export function AddJobForm() {
               value={organization}
               onChange={(e) => setOrganization(e.target.value)}
               placeholder="e.g. Bangladesh Bank, NTRCA, Railway"
-              className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
+              className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
             />
           </div>
 
           {/* Application Fee */}
           <div className="space-y-1.5">
             <label className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1">
-              <DollarSign className="h-3.5 w-3.5" />
+              <TakaIcon className="h-3.5 w-3.5" />
               Application Fee (BDT)
             </label>
             <input
@@ -117,7 +118,7 @@ export function AddJobForm() {
               value={applicationFee || ""}
               onChange={(e) => setApplicationFee(Number(e.target.value))}
               placeholder="e.g. 700"
-              className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
+              className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
             />
           </div>
 
@@ -132,7 +133,7 @@ export function AddJobForm() {
               required
               value={deadline}
               onChange={(e) => setDeadline(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
+              className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
             />
           </div>
 
@@ -147,7 +148,7 @@ export function AddJobForm() {
               value={applicationLink}
               onChange={(e) => setApplicationLink(e.target.value)}
               placeholder="e.g. http://bb.teletalk.com.bd"
-              className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
+              className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
             />
           </div>
 
@@ -162,7 +163,7 @@ export function AddJobForm() {
               value={circularLink}
               onChange={(e) => setCircularLink(e.target.value)}
               placeholder="e.g. https://www.bb.org.bd/circular"
-              className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
+              className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
             />
           </div>
 
@@ -176,7 +177,7 @@ export function AddJobForm() {
               value={description}
               onChange={(e) => setDescription(e.target.value)}
               placeholder="Write your notes here (e.g. login credentials, tracking details, requirements)..."
-              className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
+              className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
             />
           </div>
         </div>
@@ -199,7 +200,7 @@ export function AddJobForm() {
 
           <div className="space-y-3">
             {posts.map((post, index) => (
-              <div key={index} className="flex gap-2.5 items-end p-4 rounded-2xl bg-muted/40 border border-border/30">
+              <div key={index} className="flex gap-2.5 items-end p-4 rounded-lg bg-muted/40 border border-border/30">
                 {/* Post name */}
                 <div className="flex-1 space-y-1">
                   <label className="text-[10px] font-bold text-muted-foreground uppercase">Post Name</label>
@@ -258,7 +259,7 @@ export function AddJobForm() {
         <button
           type="submit"
           disabled={isPending}
-          className="w-full py-4 rounded-2xl bg-primary text-primary-foreground font-extrabold text-sm hover:bg-primary/95 shadow-md transition-all flex justify-center items-center gap-1.5"
+          className="w-full py-4 rounded-lg bg-primary text-primary-foreground font-extrabold text-sm hover:bg-primary/95 shadow-md transition-all flex justify-center items-center gap-1.5"
         >
           {isPending ? t("saving_job") : "Create and Track Deadline"}
         </button>

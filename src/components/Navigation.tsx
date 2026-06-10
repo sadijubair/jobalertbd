@@ -23,8 +23,8 @@ export function Navigation() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 z-50 h-16 border-t border-border bg-card/90 backdrop-blur-md safe-pb shadow-lg md:hidden">
-      <div className="mx-auto flex h-full max-w-lg items-center justify-around px-2">
+    <nav className="safe-pb fixed bottom-0 left-0 right-0 z-50 border-t border-border/80 bg-background/95 shadow-[0_-12px_30px_rgba(31,25,16,0.08)] backdrop-blur-md md:hidden">
+      <div className="mx-auto grid h-16 max-w-lg grid-cols-5 px-2">
         {navItems.map((item) => {
           const Icon = item.icon;
           // Check if active: exact match for root, prefix match for app paths
@@ -37,12 +37,16 @@ export function Navigation() {
             <Link
               key={item.href}
               href={item.href}
-              className={`flex flex-col items-center justify-center w-16 h-full transition-colors duration-200 ${
-                isActive ? "text-primary font-semibold" : "text-muted-foreground hover:text-foreground"
+              className={`flex h-full min-w-0 flex-col items-center justify-center gap-1 transition-colors duration-200 ${
+                isActive ? "font-semibold text-primary" : "text-muted-foreground hover:text-foreground"
               }`}
             >
-              <Icon className="h-5.5 w-5.5" />
-              <span className="text-[10px] mt-1 select-none">{item.label}</span>
+              <span className={`rounded-lg p-1.5 ${isActive ? "bg-primary/10" : ""}`}>
+                <Icon className="h-4.5 w-4.5" />
+              </span>
+              <span className="w-full truncate text-center text-[10px] leading-none">
+                {item.label}
+              </span>
             </Link>
           );
         })}

@@ -1,7 +1,7 @@
 import { getSession } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { LayoutDashboard, Briefcase, Globe, Bell, Mail, AlertTriangle, LogOut, Sun, Moon, Languages, Users } from "lucide-react";
+import { LayoutDashboard, Briefcase, Globe, Bell, Mail, AlertTriangle, LogOut, Users, BriefcaseBusiness } from "lucide-react";
 
 interface WorkspaceLayoutProps {
   children: React.ReactNode;
@@ -26,28 +26,29 @@ export default async function WorkspaceLayout({ children }: WorkspaceLayoutProps
   ];
 
   return (
-    <div className="flex min-h-screen bg-muted/40 text-foreground">
+    <div className="flex min-h-screen bg-background text-foreground">
       {/* 1. Sidebar Nav (Desktop) */}
-      <aside className="hidden md:flex flex-col w-64 border-r border-border bg-card shrink-0">
+      <aside className="hidden w-64 shrink-0 flex-col border-r border-border/80 bg-card md:flex">
         {/* Brand */}
-        <div className="h-16 border-b border-border flex items-center px-6 gap-2">
-          <div className="h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold">
-            W
+        <div className="flex h-16 items-center gap-2 border-b border-border/80 px-5">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg bg-primary text-primary-foreground">
+            <BriefcaseBusiness className="h-5 w-5" />
           </div>
-          <span className="font-extrabold text-lg bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-            Workspace <span className="text-foreground text-xs font-medium">Admin</span>
-          </span>
+          <div>
+            <span className="block text-sm font-extrabold text-foreground">JobAlert BD</span>
+            <span className="text-xs font-semibold text-muted-foreground">Workspace Admin</span>
+          </div>
         </div>
 
         {/* Links */}
-        <nav className="flex-1 p-4 space-y-1">
+        <nav className="flex-1 space-y-1 p-3">
           {sidebarLinks.map((link) => {
             const Icon = link.icon;
             return (
               <Link
                 key={link.href}
                 href={link.href}
-                className="flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-semibold text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
+                className="flex items-center gap-3 rounded-lg px-3 py-2.5 text-sm font-semibold text-muted-foreground transition-all hover:bg-muted hover:text-foreground"
               >
                 <Icon className="h-4.5 w-4.5 text-muted-foreground" />
                 {link.label}
@@ -57,9 +58,9 @@ export default async function WorkspaceLayout({ children }: WorkspaceLayoutProps
         </nav>
 
         {/* User Footer */}
-        <div className="p-4 border-t border-border flex flex-col gap-3">
+        <div className="flex flex-col gap-3 border-t border-border/80 p-4">
           <div className="flex items-center gap-3">
-            <div className="h-9 w-9 rounded-full bg-primary/10 border border-primary/20 flex items-center justify-center font-bold text-primary">
+            <div className="flex h-9 w-9 items-center justify-center rounded-full border border-primary/20 bg-primary/10 font-bold text-primary">
               A
             </div>
             <div className="overflow-hidden">
@@ -69,7 +70,7 @@ export default async function WorkspaceLayout({ children }: WorkspaceLayoutProps
           </div>
           <a
             href="/api/auth/logout"
-            className="flex items-center justify-center gap-2 p-2.5 rounded-xl border border-rose-500/20 bg-rose-500/5 hover:bg-rose-500/10 text-rose-500 font-bold text-xs transition-all text-center"
+            className="flex items-center justify-center gap-2 rounded-lg border border-rose-500/20 bg-rose-500/5 p-2.5 text-center text-xs font-bold text-rose-500 transition-all hover:bg-rose-500/10"
           >
             <LogOut className="h-4 w-4" />
             Logout Workspace
@@ -80,10 +81,10 @@ export default async function WorkspaceLayout({ children }: WorkspaceLayoutProps
       {/* 2. Main Area */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* Top Header */}
-        <header className="h-16 border-b border-border bg-card flex items-center justify-between px-6">
+        <header className="flex h-16 items-center justify-between border-b border-border/80 bg-background/90 px-4 backdrop-blur-md sm:px-6">
           <div className="flex items-center gap-2">
-            <div className="md:hidden h-8 w-8 rounded-lg bg-primary flex items-center justify-center text-white font-bold">
-              W
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-primary text-primary-foreground md:hidden">
+              <BriefcaseBusiness className="h-4.5 w-4.5" />
             </div>
             <span className="md:hidden font-extrabold text-base text-foreground">
               Workspace Admin
@@ -102,7 +103,7 @@ export default async function WorkspaceLayout({ children }: WorkspaceLayoutProps
         </header>
 
         {/* Page Content */}
-        <main className="flex-1 p-6 overflow-y-auto max-w-6xl w-full mx-auto">
+        <main className="mx-auto w-full max-w-6xl flex-1 overflow-y-auto p-4 sm:p-6">
           {children}
         </main>
       </div>

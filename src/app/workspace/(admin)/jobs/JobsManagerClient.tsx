@@ -2,7 +2,9 @@
 
 import { createGlobalJob, updateGlobalJob, deleteGlobalJob, toggleFeatureJob } from "@/app/actions/workspaceActions";
 import { useState, useTransition } from "react";
-import { Plus, Trash2, Edit2, Star, Calendar, Briefcase, DollarSign, ArrowLeft, CheckCircle } from "lucide-react";
+import { Plus, Trash2, Edit2, Star, Calendar, Briefcase, ArrowLeft, CheckCircle } from "lucide-react";
+import { TakaIcon } from "@/components/AppIcons";
+import { formatDateDMY } from "@/lib/format";
 
 interface JobsManagerClientProps {
   initialJobs: any[];
@@ -168,7 +170,7 @@ export function JobsManagerClient({ initialJobs }: JobsManagerClientProps) {
         {mode === "list" && (
           <button
             onClick={handleCreateTrigger}
-            className="flex items-center gap-1 bg-primary text-primary-foreground font-bold text-sm px-4 py-2.5 rounded-xl hover:bg-primary/95 transition-all shadow-md"
+            className="flex items-center gap-1 bg-primary text-primary-foreground font-bold text-sm px-4 py-2.5 rounded-lg hover:bg-primary/95 transition-all shadow-md"
           >
             <Plus className="h-4.5 w-4.5" />
             Add Global Circular
@@ -184,7 +186,7 @@ export function JobsManagerClient({ initialJobs }: JobsManagerClientProps) {
             {jobs.map((job) => {
               const vacancy = job.posts?.reduce((sum: number, p: any) => sum + p.postsCount, 0) || 0;
               return (
-                <div key={job.id} className="p-5 rounded-2xl border border-border bg-card shadow-xs flex justify-between items-start gap-4">
+                <div key={job.id} className="p-5 rounded-lg border border-border bg-card shadow-xs flex justify-between items-start gap-4">
                   <div className="space-y-2">
                     <div className="flex gap-2 items-center">
                       <h3 className="font-extrabold text-foreground text-lg line-clamp-1">
@@ -206,7 +208,7 @@ export function JobsManagerClient({ initialJobs }: JobsManagerClientProps) {
                       </span>
                       <span className="flex items-center gap-1">
                         <Calendar className="h-3.5 w-3.5" />
-                        DL: {new Date(job.deadline).toLocaleDateString()}
+                        DL: {formatDateDMY(job.deadline)}
                       </span>
                     </div>
                   </div>
@@ -244,7 +246,7 @@ export function JobsManagerClient({ initialJobs }: JobsManagerClientProps) {
             })}
           </div>
         ) : (
-          <div className="py-24 text-center border-2 border-dashed border-border rounded-3xl bg-card">
+          <div className="py-24 text-center border-2 border-dashed border-border rounded-lg bg-card">
             <Briefcase className="h-16 w-16 text-muted-foreground mx-auto mb-4 stroke-1" />
             <h3 className="font-extrabold text-lg text-foreground mb-1">No global jobs yet</h3>
             <p className="text-sm text-muted-foreground max-w-xs mx-auto mb-4">
@@ -252,7 +254,7 @@ export function JobsManagerClient({ initialJobs }: JobsManagerClientProps) {
             </p>
             <button
               onClick={handleCreateTrigger}
-              className="bg-primary text-primary-foreground px-4 py-2.5 rounded-xl font-bold text-sm"
+              className="bg-primary text-primary-foreground px-4 py-2.5 rounded-lg font-bold text-sm"
             >
               Add Global Circular
             </button>
@@ -270,7 +272,7 @@ export function JobsManagerClient({ initialJobs }: JobsManagerClientProps) {
             Back to circulars list
           </button>
 
-          <div className="p-6 rounded-3xl border border-border bg-card shadow-sm space-y-6">
+          <div className="p-6 rounded-lg border border-border bg-card shadow-sm space-y-6">
             <h3 className="text-xl font-extrabold text-foreground">
               {mode === "add" ? "Add Global Circular" : "Edit Global Circular"}
             </h3>
@@ -288,14 +290,14 @@ export function JobsManagerClient({ initialJobs }: JobsManagerClientProps) {
                   value={organization}
                   onChange={(e) => setOrganization(e.target.value)}
                   placeholder="e.g. NTRCA, Bangladesh Railway"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
+                  className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
                 />
               </div>
 
               {/* Fee */}
               <div className="space-y-1.5">
                 <label className="text-xs font-bold text-muted-foreground uppercase flex items-center gap-1">
-                  <DollarSign className="h-3.5 w-3.5" />
+                  <TakaIcon className="h-3.5 w-3.5" />
                   Application Fee (BDT)
                 </label>
                 <input
@@ -304,7 +306,7 @@ export function JobsManagerClient({ initialJobs }: JobsManagerClientProps) {
                   value={applicationFee || ""}
                   onChange={(e) => setApplicationFee(Number(e.target.value))}
                   placeholder="e.g. 500"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
+                  className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
                 />
               </div>
 
@@ -319,7 +321,7 @@ export function JobsManagerClient({ initialJobs }: JobsManagerClientProps) {
                   required
                   value={deadline}
                   onChange={(e) => setDeadline(e.target.value)}
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
+                  className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
                 />
               </div>
 
@@ -331,7 +333,7 @@ export function JobsManagerClient({ initialJobs }: JobsManagerClientProps) {
                   value={applicationLink}
                   onChange={(e) => setApplicationLink(e.target.value)}
                   placeholder="http://example.com/apply"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
+                  className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
                 />
               </div>
 
@@ -343,7 +345,7 @@ export function JobsManagerClient({ initialJobs }: JobsManagerClientProps) {
                   value={circularLink}
                   onChange={(e) => setCircularLink(e.target.value)}
                   placeholder="http://example.com/pdf"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
+                  className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
                 />
               </div>
 
@@ -369,7 +371,7 @@ export function JobsManagerClient({ initialJobs }: JobsManagerClientProps) {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Enter details..."
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
+                  className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
                 />
               </div>
             </div>
@@ -389,7 +391,7 @@ export function JobsManagerClient({ initialJobs }: JobsManagerClientProps) {
 
               <div className="space-y-3">
                 {posts.map((post, index) => (
-                  <div key={index} className="flex gap-2 items-end p-4 rounded-2xl bg-muted/40 border border-border/30">
+                  <div key={index} className="flex gap-2 items-end p-4 rounded-lg bg-muted/40 border border-border/30">
                     <div className="flex-1 space-y-1">
                       <label className="text-[10px] font-bold text-muted-foreground uppercase">Post Name</label>
                       <input
@@ -440,14 +442,14 @@ export function JobsManagerClient({ initialJobs }: JobsManagerClientProps) {
               <button
                 type="submit"
                 disabled={isPending}
-                className="flex-1 py-3.5 rounded-2xl bg-primary text-primary-foreground font-extrabold text-sm hover:bg-primary/95 transition-all shadow-md flex justify-center items-center gap-1.5"
+                className="flex-1 py-3.5 rounded-lg bg-primary text-primary-foreground font-extrabold text-sm hover:bg-primary/95 transition-all shadow-md flex justify-center items-center gap-1.5"
               >
                 {isPending ? "Saving..." : "Save Global Circular"}
               </button>
               <button
                 type="button"
                 onClick={() => setMode("list")}
-                className="px-6 py-3.5 rounded-2xl border border-border bg-card text-foreground hover:bg-muted font-bold text-sm transition-all"
+                className="px-6 py-3.5 rounded-lg border border-border bg-card text-foreground hover:bg-muted font-bold text-sm transition-all"
               >
                 Cancel
               </button>

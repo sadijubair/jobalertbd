@@ -1,11 +1,23 @@
 "use client";
 
-import Link from "next/link";
-import { Calendar, Briefcase, DollarSign, Bell } from "lucide-react";
+import { Calendar, Briefcase, Bell, ExternalLink } from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { toggleTrackJob } from "@/app/actions/jobActions";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import {
+  Drawer,
+  DrawerClose,
+  DrawerContent,
+  DrawerDescription,
+  DrawerFooter,
+  DrawerHeader,
+  DrawerTitle,
+  DrawerTrigger,
+} from "@/components/ui/drawer";
+import { TakaIcon } from "@/components/AppIcons";
+import { formatDateDMY } from "@/lib/format";
 
 interface JobCardProps {
   job: {
@@ -15,6 +27,9 @@ interface JobCardProps {
     applicationFee: number;
     isFeatured: boolean;
     posts?: { id: string; name: string; postsCount: number }[];
+    circularLink?: string | null;
+    applicationLink?: string | null;
+    description?: string | null;
   };
   isTrackingInitial?: boolean;
   isLoggedIn: boolean;
@@ -66,6 +81,7 @@ export function JobCard({ job, isTrackingInitial = false, isLoggedIn }: JobCardP
 
   const handleTrackClick = async (e: React.MouseEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     if (!isLoggedIn) {
       router.push("/api/auth/google");
       return;
@@ -80,63 +96,154 @@ export function JobCard({ job, isTrackingInitial = false, isLoggedIn }: JobCardP
   };
 
   return (
-    <div className={`relative flex flex-col justify-between p-4 rounded-2xl border transition-all duration-200 hover:-translate-y-1 shadow-sm hover:shadow-md ${
-      job.isFeatured
-        ? "bg-gradient-to-br from-card to-blue-500/5 border-blue-500/30 hover:border-blue-500/50"
-        : "bg-card border-border hover:border-muted-foreground/30"
-    }`}>
-      {/* Top Section */}
-      <div>
-        <div className="flex justify-between items-start gap-2 mb-2">
-          {/* Days Left Countdown */}
-          <span className={`px-2.5 py-1 rounded-full text-xs font-semibold ${badgeColor}`}>
-            {deadlineTag}
-          </span>
+    <Drawer>
+      <DrawerTrigger asChild>
+        <article
+          role="button"
+          tabIndex={0}
+          className={`surface-panel group relative flex min-h-[218px] cursor-pointer flex-col justify-between rounded-lg p-4 text-left transition-all duration-200 hover:-translate-y-0.5 hover:border-primary/35 hover:shadow-md ${
+            job.isFeatured ? "ring-1 ring-amber-500/30" : ""
+          }`}
+        >
+          <div>
+            <div className="mb-3 flex items-start justify-between gap-2">
+              <span className={`rounded-md px-2.5 py-1 text-xs font-semibold ${badgeColor}`}>
+                {deadlineTag}
+              </span>
 
-          {/* Quick Track Button */}
-          <button
-            onClick={handleTrackClick}
-            disabled={isPending}
-            className={`p-1.5 rounded-lg border transition-all ${
-              isTracking
-                ? "bg-blue-500/10 text-blue-600 border-blue-500/30"
-                : "bg-muted text-muted-foreground border-transparent hover:text-foreground"
-            }`}
-            title={isTracking ? t("unsave_job") : t("save_job")}
-          >
-            <Bell className={`h-4.5 w-4.5 ${isTracking ? "fill-blue-500 text-blue-500" : ""}`} />
-          </button>
-        </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="icon-sm"
+                onClick={handleTrackClick}
+                disabled={isPending}
+                className={`${
+                  isTracking
+                    ? "border-primary/30 bg-primary/10 text-primary"
+                    : "bg-card text-muted-foreground hover:text-foreground"
+                }`}
+                title={isTracking ? t("unsave_job") : t("save_job")}
+              >
+                <Bell className={`h-4.5 w-4.5 ${isTracking ? "fill-primary text-primary" : ""}`} />
+              </Button>
+            </div>
 
-        {/* Info */}
-        <Link href={`/jobs/${job.id}`} className="block group">
-          <h3 className="font-bold text-lg text-foreground line-clamp-1 group-hover:text-primary transition-colors">
-            {job.organization}
-          </h3>
+            <h3 className="line-clamp-1 text-lg font-extrabold text-foreground transition-colors group-hover:text-primary">
+              {job.organization}
+            </h3>
 
-          <p className="text-sm text-muted-foreground line-clamp-2 mt-1 min-h-[40px]">
-            {postsSummary}
-          </p>
+            <p className="mt-1 min-h-[40px] line-clamp-2 text-sm leading-5 text-muted-foreground">
+              {postsSummary}
+            </p>
 
-          <div className="flex flex-wrap gap-x-4 gap-y-2 mt-3 pt-3 border-t border-border/60 text-xs text-muted-foreground">
-            <span className="flex items-center gap-1">
-              <Briefcase className="h-3.5 w-3.5" />
-              {totalVacancy > 0 ? `${totalVacancy} ${t("posts")}` : t("posts")}
-            </span>
-            <span className="flex items-center gap-1">
-              <DollarSign className="h-3.5 w-3.5" />
-              {job.applicationFee > 0 ? `${job.applicationFee} BDT` : `Free`}
-            </span>
-            <span className="flex items-center gap-1">
-              <Calendar className="h-3.5 w-3.5" />
-              {new Date(job.deadline).toLocaleDateString(locale === "bn" ? "bn-BD" : "en-US", {
-                month: "short",
-                day: "numeric",
-              })}
-            </span>
+            <div className="mt-4 grid grid-cols-3 gap-2 border-t border-border/60 pt-3 text-xs text-muted-foreground">
+              <span className="flex items-center gap-1">
+                <Briefcase className="h-3.5 w-3.5" />
+                <span className="truncate">{totalVacancy > 0 ? `${totalVacancy}` : t("posts")}</span>
+              </span>
+              <span className="flex items-center gap-1">
+                <TakaIcon className="h-3.5 w-3.5" />
+                <span className="truncate">{job.applicationFee > 0 ? `${job.applicationFee}` : `Free`}</span>
+              </span>
+              <span className="flex items-center gap-1">
+                <Calendar className="h-3.5 w-3.5" />
+                <span className="truncate">{formatDateDMY(job.deadline)}</span>
+              </span>
+            </div>
           </div>
-        </Link>
-      </div>
-    </div>
+        </article>
+      </DrawerTrigger>
+      <DrawerContent>
+        <div className="mx-auto flex max-h-[78vh] w-full max-w-2xl flex-col overflow-hidden">
+          <DrawerHeader className="text-left">
+            <div className="mb-2 flex flex-wrap gap-2">
+              <span className={`rounded-md px-2.5 py-1 text-xs font-semibold ${badgeColor}`}>
+                {deadlineTag}
+              </span>
+              {job.isFeatured && (
+                <span className="rounded-md bg-amber-500/10 px-2.5 py-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
+                  Featured
+                </span>
+              )}
+            </div>
+            <DrawerTitle className="text-xl font-extrabold">
+              {job.organization}
+            </DrawerTitle>
+            <DrawerDescription>{postsSummary}</DrawerDescription>
+          </DrawerHeader>
+
+          <div className="space-y-5 overflow-y-auto px-4 pb-2">
+            <div className="grid grid-cols-3 gap-2">
+              <div className="rounded-lg bg-muted/50 p-3">
+                <div className="text-xs font-semibold text-muted-foreground">Deadline</div>
+                <div className="mt-1 text-sm font-bold text-foreground">{formatDateDMY(job.deadline)}</div>
+              </div>
+              <div className="rounded-lg bg-muted/50 p-3">
+                <div className="text-xs font-semibold text-muted-foreground">Fee</div>
+                <div className="mt-1 flex items-center gap-1 text-sm font-bold text-foreground">
+                  <TakaIcon className="h-4 w-4" />
+                  {job.applicationFee > 0 ? `${job.applicationFee}` : "Free"}
+                </div>
+              </div>
+              <div className="rounded-lg bg-muted/50 p-3">
+                <div className="text-xs font-semibold text-muted-foreground">Vacancy</div>
+                <div className="mt-1 text-sm font-bold text-foreground">
+                  {totalVacancy > 0 ? totalVacancy : "-"}
+                </div>
+              </div>
+            </div>
+
+            <div className="space-y-2">
+              <h4 className="text-sm font-extrabold text-foreground">{t("posts")}</h4>
+              {job.posts && job.posts.length > 0 ? (
+                <div className="space-y-2">
+                  {job.posts.map((post) => (
+                    <div key={post.id} className="flex items-center justify-between rounded-lg border border-border/60 bg-card p-3">
+                      <span className="text-sm font-semibold text-foreground">{post.name}</span>
+                      <span className="text-xs font-bold text-primary">{post.postsCount}</span>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground">General posts</p>
+              )}
+            </div>
+
+            {job.description && (
+              <div className="space-y-2">
+                <h4 className="text-sm font-extrabold text-foreground">Description</h4>
+                <p className="whitespace-pre-line text-sm leading-6 text-muted-foreground">
+                  {job.description}
+                </p>
+              </div>
+            )}
+          </div>
+
+          <DrawerFooter>
+            <div className="grid grid-cols-1 gap-2 sm:grid-cols-2">
+              {job.circularLink && (
+                <Button asChild variant="outline">
+                  <a href={job.circularLink} target="_blank" rel="noopener noreferrer">
+                    {t("circular_link")}
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </Button>
+              )}
+              {job.applicationLink && (
+                <Button asChild>
+                  <a href={job.applicationLink} target="_blank" rel="noopener noreferrer">
+                    {t("apply")}
+                    <ExternalLink className="h-4 w-4" />
+                  </a>
+                </Button>
+              )}
+            </div>
+            <DrawerClose asChild>
+              <Button variant="outline">Close</Button>
+            </DrawerClose>
+          </DrawerFooter>
+        </div>
+      </DrawerContent>
+    </Drawer>
   );
 }

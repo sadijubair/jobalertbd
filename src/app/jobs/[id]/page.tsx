@@ -23,7 +23,7 @@ export default async function JobDetailsPage({ params }: JobDetailsPageProps) {
       {/* Global Header */}
       <Header session={session} />
 
-      <main className="flex-1 mx-auto w-full max-w-2xl px-4 sm:px-6 py-6 pb-24 md:pb-12">
+      <main className="mx-auto w-full max-w-3xl flex-1 px-4 py-6 pb-24 sm:px-6 md:pb-12">
         <JobDetailsClient
           job={res.job}
           isTrackingInitial={res.isTracking || false}

@@ -7,9 +7,18 @@ import { useState, useEffect, useTransition } from "react";
 import { Search, SlidersHorizontal, Calendar, Star, Compass } from "lucide-react";
 
 interface SearchClientProps {
-  initialJobs: any[];
+  initialJobs: PublicJob[];
   isLoggedIn: boolean;
   trackedJobIds: string[];
+}
+
+interface PublicJob {
+  id: string;
+  organization: string;
+  deadline: Date | string;
+  applicationFee: number;
+  isFeatured: boolean;
+  posts?: { id: string; name: string; postsCount: number }[];
 }
 
 export function SearchClient({ initialJobs, isLoggedIn, trackedJobIds }: SearchClientProps) {
@@ -49,30 +58,30 @@ export function SearchClient({ initialJobs, isLoggedIn, trackedJobIds }: SearchC
   return (
     <div className="space-y-6">
       {/* Search Header Input */}
-      <div className="relative">
-        <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+      <div className="surface-panel relative rounded-lg">
+        <Search className="absolute left-4 top-1/2 h-5 w-5 -translate-y-1/2 text-primary" />
         <input
           type="text"
           value={query}
           onChange={(e) => setQuery(e.target.value)}
           placeholder={t("search_placeholder")}
-          className="w-full pl-12 pr-4 py-3.5 rounded-2xl border border-border bg-card text-foreground shadow-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm sm:text-base"
+          className="h-12 w-full rounded-lg border-0 bg-transparent py-0 pl-12 pr-4 text-sm text-foreground outline-none transition-all placeholder:text-muted-foreground focus:ring-3 focus:ring-primary/15 sm:text-base"
         />
         {isPending && (
-          <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-1.5 text-xs text-muted-foreground">
-            <span className="h-4 w-4 rounded-full border-2 border-primary border-t-transparent animate-spin" />
+          <div className="absolute right-4 top-1/2 flex -translate-y-1/2 items-center gap-1.5 text-xs text-muted-foreground">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-primary border-t-transparent" />
           </div>
         )}
       </div>
 
       {/* Filters Title */}
       <div>
-        <div className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground mb-3 uppercase tracking-wide">
+        <div className="eyebrow mb-3 flex items-center gap-1.5">
           <SlidersHorizontal className="h-4 w-4" />
           {t("search_filters")}
         </div>
         {/* Horizontal filters container */}
-        <div className="flex gap-2 overflow-x-auto pb-2 -mx-4 px-4 scrollbar-none">
+        <div className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-2 scrollbar-none">
           {filtersList.map((item) => {
             const Icon = item.icon;
             const isSelected = filter === item.id;
@@ -80,7 +89,7 @@ export function SearchClient({ initialJobs, isLoggedIn, trackedJobIds }: SearchC
               <button
                 key={item.id}
                 onClick={() => setFilter(item.id)}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-bold whitespace-nowrap transition-all border ${
+                className={`flex items-center gap-1.5 rounded-lg border px-3 py-2 text-xs font-bold whitespace-nowrap transition-all ${
                   isSelected
                     ? "bg-primary text-primary-foreground border-primary shadow-sm"
                     : "bg-card text-muted-foreground border-border hover:text-foreground hover:bg-muted"
@@ -96,7 +105,7 @@ export function SearchClient({ initialJobs, isLoggedIn, trackedJobIds }: SearchC
 
       {/* Search Results */}
       {jobs.length > 0 ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {jobs.map((job) => (
             <JobCard
               key={job.id}
@@ -107,7 +116,7 @@ export function SearchClient({ initialJobs, isLoggedIn, trackedJobIds }: SearchC
           ))}
         </div>
       ) : (
-        <div className="py-16 text-center border-2 border-dashed border-border rounded-3xl bg-card">
+        <div className="surface-panel rounded-lg border-dashed py-16 text-center">
           <SlidersHorizontal className="h-12 w-12 text-muted-foreground mx-auto mb-4 stroke-1" />
           <h3 className="font-extrabold text-lg text-foreground mb-1">
             {t("no_jobs_found")}

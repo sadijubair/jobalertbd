@@ -38,9 +38,9 @@ export function BroadcastClient() {
         </p>
       </div>
 
-      <div className="max-w-xl p-6 rounded-3xl border border-border bg-card shadow-sm">
+      <div className="max-w-xl p-6 rounded-lg border border-border bg-card shadow-sm">
         {sent && (
-          <div className="mb-4 flex items-center gap-2 p-3.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 text-xs font-bold">
+          <div className="mb-4 flex items-center gap-2 p-3.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 text-xs font-bold">
             <CheckCircle2 className="h-4.5 w-4.5" />
             <span>Broadcast announcement successfully dispatched!</span>
           </div>
@@ -58,7 +58,7 @@ export function BroadcastClient() {
               value={title}
               onChange={(e) => setTitle(e.target.value)}
               placeholder="e.g. Server Maintenance or Weekly Digest Available"
-              className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
+              className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
             />
           </div>
 
@@ -73,14 +73,14 @@ export function BroadcastClient() {
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="Write the broadcast message content here..."
-              className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
+              className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
             />
           </div>
 
           <button
             type="submit"
             disabled={isPending}
-            className="w-full py-3.5 rounded-xl bg-primary text-primary-foreground font-extrabold text-sm hover:bg-primary/95 transition-all shadow-md flex justify-center items-center gap-1.5"
+            className="w-full py-3.5 rounded-lg bg-primary text-primary-foreground font-extrabold text-sm hover:bg-primary/95 transition-all shadow-md flex justify-center items-center gap-1.5"
           >
             <Send className="h-4 w-4" />
             {isPending ? "Dispatched..." : "Send Announcement"}

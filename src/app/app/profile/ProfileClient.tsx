@@ -4,8 +4,12 @@ import { useLanguage } from "@/components/LanguageProvider";
 import { updateUserSettings, savePushSubscriptionAction } from "@/app/actions/userActions";
 import { subscribeToPushNotifications } from "@/components/PWARegister";
 import { useTheme } from "next-themes";
-import { useState, useEffect, useTransition } from "react";
-import { User, Sun, Moon, Languages, Bell, Shield, Mail, BellRing, LogOut, Check } from "lucide-react";
+import { useState, useTransition } from "react";
+import type { ComponentType } from "react";
+import { Sun, Bell, Shield, Mail, BellRing, LogOut, Check } from "lucide-react";
+import { Switch } from "@/components/ui/switch";
+import { Label } from "@/components/ui/label";
+import { LanguageSwitchIcon } from "@/components/AppIcons";
 
 interface ProfileClientProps {
   session: {
@@ -13,6 +17,7 @@ interface ProfileClientProps {
     name: string;
     email: string;
     role: string;
+    avatar?: string | null;
   };
   initialPreferences: {
     newJobsEnabled: boolean;
@@ -29,16 +34,11 @@ interface ProfileClientProps {
 export function ProfileClient({ session, initialPreferences }: ProfileClientProps) {
   const { t, locale, setLocale } = useLanguage();
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [isPending, startTransition] = useTransition();
+  const [, startTransition] = useTransition();
 
   // Notification Preferences States
   const [prefs, setPrefs] = useState(initialPreferences);
   const [showSaveSuccess, setShowSaveSuccess] = useState(false);
-
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   const handleToggle = (field: keyof typeof initialPreferences) => {
     const isEnablingPush = field === "pushEnabled" && !prefs.pushEnabled;
@@ -72,16 +72,39 @@ export function ProfileClient({ session, initialPreferences }: ProfileClientProp
     });
   };
 
+  const deadlineOptions: { id: keyof typeof initialPreferences; label: string }[] = [
+    { id: "deadline15Days", label: t("alert_15d") },
+    { id: "deadline7Days", label: t("alert_7d") },
+    { id: "deadline3Days", label: t("alert_3d") },
+    { id: "deadlineToday", label: t("alert_0d") },
+  ];
+
+  const deliveryOptions: {
+    id: keyof typeof initialPreferences;
+    label: string;
+    icon: ComponentType<{ className?: string }>;
+  }[] = [
+    { id: "inAppEnabled", label: t("delivery_in_app"), icon: BellRing },
+    { id: "pushEnabled", label: t("delivery_push"), icon: Bell },
+    { id: "emailEnabled", label: t("delivery_email"), icon: Mail },
+  ];
+
   return (
     <div className="space-y-6">
       {/* Profile Header */}
-      <div className="p-6 rounded-3xl border border-border bg-card shadow-sm flex items-center gap-4">
+      <div className="p-6 rounded-lg border border-border bg-card shadow-sm flex items-center gap-4">
         <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-primary/20 bg-muted">
-          <img
-            src={`https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(session.name)}`}
-            alt={session.name}
-            className="h-full w-full object-cover"
-          />
+          {session.avatar ? (
+            <img
+              src={session.avatar}
+              alt={session.name}
+              className="h-full w-full object-cover"
+            />
+          ) : (
+            <div className="flex h-full w-full items-center justify-center bg-primary/10 text-lg font-extrabold text-primary">
+              {session.name.charAt(0).toUpperCase()}
+            </div>
+          )}
         </div>
         <div>
           <h2 className="font-extrabold text-xl text-foreground leading-tight">
@@ -97,7 +120,7 @@ export function ProfileClient({ session, initialPreferences }: ProfileClientProp
       {/* Settings Grid */}
       <div className="space-y-4">
         {/* 1. Appearance & Language */}
-        <div className="p-6 rounded-3xl border border-border bg-card shadow-sm space-y-4">
+        <div className="p-6 rounded-lg border border-border bg-card shadow-sm space-y-4">
           <h3 className="font-extrabold text-base text-foreground flex items-center gap-2 border-b border-border/40 pb-2.5">
             <Shield className="h-5 w-5 text-primary" />
             General Settings
@@ -109,7 +132,7 @@ export function ProfileClient({ session, initialPreferences }: ProfileClientProp
               <Sun className="h-4 w-4 text-muted-foreground" />
               {t("theme")}
             </span>
-            <div className="flex bg-muted p-1 rounded-xl gap-1">
+            <div className="flex bg-muted p-1 rounded-lg gap-1">
               {[
                 { id: "light", label: t("theme_light") },
                 { id: "dark", label: t("theme_dark") },
@@ -117,9 +140,9 @@ export function ProfileClient({ session, initialPreferences }: ProfileClientProp
               ].map((tOpt) => (
                 <button
                   key={tOpt.id}
-                  onClick={() => mounted && setTheme(tOpt.id)}
+                  onClick={() => setTheme(tOpt.id)}
                   className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
-                    mounted && theme === tOpt.id
+                    theme === tOpt.id
                       ? "bg-card text-foreground shadow-xs"
                       : "text-muted-foreground hover:text-foreground"
                   }`}
@@ -133,17 +156,17 @@ export function ProfileClient({ session, initialPreferences }: ProfileClientProp
           {/* Language Selection */}
           <div className="flex justify-between items-center py-1.5 border-t border-border/40 pt-3">
             <span className="text-sm font-semibold text-foreground flex items-center gap-2">
-              <Languages className="h-4 w-4 text-muted-foreground" />
+              <LanguageSwitchIcon className="h-4 w-4 text-muted-foreground" />
               {t("language")}
             </span>
-            <div className="flex bg-muted p-1 rounded-xl gap-1">
+            <div className="flex bg-muted p-1 rounded-lg gap-1">
               {[
                 { id: "en", label: t("language_en") },
                 { id: "bn", label: t("language_bn") },
               ].map((langOpt) => (
                 <button
                   key={langOpt.id}
-                  onClick={() => setLocale(langOpt.id as any)}
+                  onClick={() => setLocale(langOpt.id as "en" | "bn")}
                   className={`px-3 py-1.5 text-xs font-bold rounded-lg transition-all ${
                     locale === langOpt.id
                       ? "bg-card text-foreground shadow-xs"
@@ -158,7 +181,7 @@ export function ProfileClient({ session, initialPreferences }: ProfileClientProp
         </div>
 
         {/* 2. Notification Preferences */}
-        <div className="p-6 rounded-3xl border border-border bg-card shadow-sm space-y-4">
+        <div className="p-6 rounded-lg border border-border bg-card shadow-sm space-y-4">
           <div className="flex justify-between items-center border-b border-border/40 pb-2.5">
             <h3 className="font-extrabold text-base text-foreground flex items-center gap-2">
               <Bell className="h-5 w-5 text-primary" />
@@ -177,30 +200,26 @@ export function ProfileClient({ session, initialPreferences }: ProfileClientProp
               <span className="text-sm font-bold text-foreground block">{t("new_jobs_alert")}</span>
               <span className="text-[11px] text-muted-foreground">Receive updates when admins add global circulars</span>
             </div>
-            <input
-              type="checkbox"
+            <Switch
+              id="new-jobs-enabled"
               checked={prefs.newJobsEnabled}
-              onChange={() => handleToggle("newJobsEnabled")}
-              className="w-10 h-5 rounded-full bg-muted border border-border accent-primary cursor-pointer"
+              onCheckedChange={() => handleToggle("newJobsEnabled")}
             />
           </div>
 
           {/* Timeline Thresholds */}
           <div className="space-y-3 pt-3 border-t border-border/40">
             <span className="text-xs font-bold text-muted-foreground uppercase block">Deadline Warning Days</span>
-            {[
-              { id: "deadline15Days", label: t("alert_15d") },
-              { id: "deadline7Days", label: t("alert_7d") },
-              { id: "deadline3Days", label: t("alert_3d") },
-              { id: "deadlineToday", label: t("alert_0d") },
-            ].map((dOpt) => (
+            {deadlineOptions.map((dOpt) => (
               <div key={dOpt.id} className="flex justify-between items-center">
-                <span className="text-xs font-semibold text-foreground">{dOpt.label}</span>
-                <input
-                  type="checkbox"
-                  checked={prefs[dOpt.id as keyof typeof initialPreferences]}
-                  onChange={() => handleToggle(dOpt.id as any)}
-                  className="accent-primary"
+                <Label htmlFor={dOpt.id} className="text-xs font-semibold text-foreground">
+                  {dOpt.label}
+                </Label>
+                <Switch
+                  id={dOpt.id}
+                  size="sm"
+                  checked={prefs[dOpt.id]}
+                  onCheckedChange={() => handleToggle(dOpt.id)}
                 />
               </div>
             ))}
@@ -209,23 +228,19 @@ export function ProfileClient({ session, initialPreferences }: ProfileClientProp
           {/* Delivery Channels */}
           <div className="space-y-3 pt-3 border-t border-border/40">
             <span className="text-xs font-bold text-muted-foreground uppercase block">Delivery Channels</span>
-            {[
-              { id: "inAppEnabled", label: t("delivery_in_app"), icon: BellRing },
-              { id: "pushEnabled", label: t("delivery_push"), icon: Bell },
-              { id: "emailEnabled", label: t("delivery_email"), icon: Mail },
-            ].map((chanOpt) => {
+            {deliveryOptions.map((chanOpt) => {
               const Icon = chanOpt.icon;
               return (
                 <div key={chanOpt.id} className="flex justify-between items-center py-1">
-                  <span className="text-xs font-bold text-foreground flex items-center gap-1.5">
+                  <Label htmlFor={chanOpt.id} className="flex items-center gap-1.5 text-xs font-bold text-foreground">
                     <Icon className="h-4 w-4 text-muted-foreground" />
                     {chanOpt.label}
-                  </span>
-                  <input
-                    type="checkbox"
-                    checked={prefs[chanOpt.id as keyof typeof initialPreferences]}
-                    onChange={() => handleToggle(chanOpt.id as any)}
-                    className="accent-primary"
+                  </Label>
+                  <Switch
+                    id={chanOpt.id}
+                    size="sm"
+                    checked={prefs[chanOpt.id]}
+                    onCheckedChange={() => handleToggle(chanOpt.id)}
                   />
                 </div>
               );
@@ -237,7 +252,7 @@ export function ProfileClient({ session, initialPreferences }: ProfileClientProp
         <div className="pt-2">
           <a
             href="/api/auth/logout"
-            className="w-full flex items-center justify-center gap-2 p-4 rounded-2xl border border-rose-500/20 bg-rose-500/5 text-rose-500 font-extrabold text-sm hover:bg-rose-500/10 transition-all text-center"
+            className="w-full flex items-center justify-center gap-2 p-4 rounded-lg border border-rose-500/20 bg-rose-500/5 text-rose-500 font-extrabold text-sm hover:bg-rose-500/10 transition-all text-center"
           >
             <LogOut className="h-4.5 w-4.5" />
             {t("logout")}

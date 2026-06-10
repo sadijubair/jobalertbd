@@ -4,6 +4,7 @@ import { useLanguage } from "@/components/LanguageProvider";
 import { markNotificationRead, markAllNotificationsRead, clearAllNotifications } from "@/app/actions/userActions";
 import { useState, useTransition } from "react";
 import { Bell, Check, Trash2, Calendar, Megaphone, Info } from "lucide-react";
+import { formatDateTimeDMY } from "@/lib/format";
 
 interface NotificationsClientProps {
   initialNotifications: any[];
@@ -111,14 +112,14 @@ export function NotificationsClient({ initialNotifications }: NotificationsClien
             <div
               key={notif.id}
               onClick={() => !notif.isRead && handleMarkRead(notif.id)}
-              className={`flex gap-4 p-4 rounded-2xl border transition-all cursor-pointer ${
+              className={`flex gap-4 p-4 rounded-lg border transition-all cursor-pointer ${
                 notif.isRead
                   ? "bg-card border-border/60 hover:bg-muted/10 opacity-75"
-                  : "bg-gradient-to-r from-card to-primary/5 border-primary/20 hover:border-primary/40 shadow-xs"
+                  : "bg-card border-primary/20 hover:border-primary/40 shadow-xs"
               }`}
             >
               {/* Icon Container */}
-              <div className={`h-9 w-9 rounded-xl flex items-center justify-center shrink-0 ${
+              <div className={`h-9 w-9 rounded-lg flex items-center justify-center shrink-0 ${
                 notif.isRead ? "bg-muted text-muted-foreground" : "bg-primary/10 text-primary"
               }`}>
                 {getIcon(notif.type)}
@@ -138,19 +139,14 @@ export function NotificationsClient({ initialNotifications }: NotificationsClien
                   {notif.content}
                 </p>
                 <span className="text-[10px] text-muted-foreground block font-semibold pt-1">
-                  {new Date(notif.createdAt).toLocaleDateString(undefined, {
-                    month: "short",
-                    day: "numeric",
-                    hour: "numeric",
-                    minute: "2-digit",
-                  })}
+                  {formatDateTimeDMY(notif.createdAt)}
                 </span>
               </div>
             </div>
           ))}
         </div>
       ) : (
-        <div className="py-24 text-center border border-dashed border-border rounded-3xl bg-card">
+        <div className="py-24 text-center border border-dashed border-border rounded-lg bg-card">
           <Bell className="h-12 w-12 text-muted-foreground mx-auto mb-4 stroke-1" />
           <h3 className="font-extrabold text-lg text-foreground mb-1">
             {t("no_notifications")}

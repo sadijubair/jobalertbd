@@ -3,6 +3,7 @@
 import { toggleUserStatus } from "@/app/actions/workspaceActions";
 import { useState, useTransition } from "react";
 import { Users, Search, ShieldAlert, ShieldCheck, Mail, Calendar, Briefcase } from "lucide-react";
+import { formatDateDMY } from "@/lib/format";
 
 interface UsersManagerClientProps {
   initialUsers: any[];
@@ -61,7 +62,7 @@ export function UsersManagerClient({ initialUsers }: UsersManagerClientProps) {
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             placeholder="Search by name or email..."
-            className="w-full pl-9 pr-3 py-2.5 rounded-xl border border-border bg-card text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+            className="w-full pl-9 pr-3 py-2.5 rounded-lg border border-border bg-card text-xs text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
           />
         </div>
       </div>
@@ -72,7 +73,7 @@ export function UsersManagerClient({ initialUsers }: UsersManagerClientProps) {
           {filteredUsers.map((user) => (
             <div
               key={user.id}
-              className={`p-5 rounded-3xl border bg-card shadow-xs flex justify-between items-start gap-4 transition-all ${
+              className={`p-5 rounded-lg border bg-card shadow-xs flex justify-between items-start gap-4 transition-all ${
                 user.status === "SUSPENDED" ? "border-rose-500/10 bg-rose-500/[0.01]" : "border-border"
               }`}
             >
@@ -113,7 +114,7 @@ export function UsersManagerClient({ initialUsers }: UsersManagerClientProps) {
                     </span>
                     <span className="flex items-center gap-0.5">
                       <Calendar className="h-3 w-3" />
-                      Joined: {new Date(user.createdAt).toLocaleDateString()}
+                      Joined: {formatDateDMY(user.createdAt)}
                     </span>
                   </div>
                 </div>
@@ -123,7 +124,7 @@ export function UsersManagerClient({ initialUsers }: UsersManagerClientProps) {
               <button
                 onClick={() => handleToggleStatus(user.id, user.status)}
                 disabled={isPending}
-                className={`p-2.5 rounded-xl border transition-all shrink-0 ${
+                className={`p-2.5 rounded-lg border transition-all shrink-0 ${
                   user.status === "ACTIVE"
                     ? "bg-rose-500/5 text-rose-500 border-rose-500/10 hover:bg-rose-500/10"
                     : "bg-emerald-500/5 text-emerald-600 border-emerald-500/10 hover:bg-emerald-500/10"
@@ -140,7 +141,7 @@ export function UsersManagerClient({ initialUsers }: UsersManagerClientProps) {
           ))}
         </div>
       ) : (
-        <div className="py-24 text-center border-2 border-dashed border-border rounded-3xl bg-card">
+        <div className="py-24 text-center border-2 border-dashed border-border rounded-lg bg-card">
           <Users className="h-16 w-16 text-muted-foreground mx-auto mb-4 stroke-1" />
           <h3 className="font-extrabold text-lg text-foreground mb-1">No users found</h3>
           <p className="text-sm text-muted-foreground max-w-xs mx-auto">

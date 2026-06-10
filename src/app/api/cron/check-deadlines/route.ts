@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import webpush from "web-push";
 import nodemailer from "nodemailer";
+import { formatDateDMY } from "@/lib/format";
 
 // Configure Web Push VAPID keys if present
 const vapidKeys = {
@@ -159,7 +160,7 @@ export async function GET(request: NextRequest) {
       if (diffDays === 0) {
         content = `Today is the final day to apply for ${job.organization}! Make sure you submit your application now.`;
       } else {
-        content = `Only ${diffDays} days left to apply for ${job.organization}. Deadline date: ${new Date(job.deadline).toLocaleDateString()}.`;
+        content = `Only ${diffDays} days left to apply for ${job.organization}. Deadline date: ${formatDateDMY(job.deadline)}.`;
       }
 
       // 1. In-App Notification

@@ -11,10 +11,6 @@ export default async function WorkspacePage() {
 
   return (
     <div className="flex min-h-screen items-center justify-center bg-background p-4 sm:p-6">
-      {/* Decorative Blur */}
-      <div className="absolute top-[10%] left-[20%] h-[300px] w-[300px] rounded-full bg-blue-500/10 blur-[100px]" />
-      <div className="absolute bottom-[10%] right-[20%] h-[300px] w-[300px] rounded-full bg-cyan-500/10 blur-[100px]" />
-      
       <WorkspaceLogin />
     </div>
   );

@@ -4,14 +4,51 @@ import { Header } from "@/components/Header";
 import { JobCard } from "@/components/JobCard";
 import { NewsletterForm } from "@/components/NewsletterForm";
 import Link from "next/link";
-import { Search, BellRing, Flame, Sparkles, Clock, ChevronRight } from "lucide-react";
+import {
+  BellRing,
+  ChevronRight,
+  Clock,
+  Search,
+  Sparkles,
+} from "lucide-react";
 import db from "@/lib/db";
+import type { ComponentType } from "react";
+
+function SectionHeader({
+  title,
+  href,
+  icon: Icon,
+  tone,
+}: {
+  title: string;
+  href?: string;
+  icon: ComponentType<{ className?: string }>;
+  tone: string;
+}) {
+  return (
+    <div className="mb-4 flex items-center justify-between gap-4">
+      <h2 className="flex items-center gap-2 text-lg font-extrabold text-foreground sm:text-xl">
+        <span className={`flex h-8 w-8 items-center justify-center rounded-lg ${tone}`}>
+          <Icon className="h-4.5 w-4.5" />
+        </span>
+        {title}
+      </h2>
+      {href && (
+        <Link
+          href={href}
+          className="inline-flex items-center gap-1 text-xs font-semibold text-primary hover:underline"
+        >
+          View all <ChevronRight className="h-3.5 w-3.5" />
+        </Link>
+      )}
+    </div>
+  );
+}
 
 export default async function HomePage() {
   const session = await getSession();
   const { featured, latest, deadlineSoon, popular } = await getHomepageSections();
 
-  // Fetch tracked job IDs for this logged-in user to set initial bell state
   const trackedJobIds = new Set<string>();
   if (session) {
     const userJobs = await db.userJob.findMany({
@@ -22,60 +59,65 @@ export default async function HomePage() {
   }
 
   const isLoggedIn = !!session;
+  const totalVisible =
+    featured.length + latest.length + deadlineSoon.length + popular.length;
 
   return (
-    <div className="flex flex-col min-h-screen">
-      {/* Global Header */}
+    <div className="flex min-h-screen flex-col">
       <Header session={session} />
 
-      {/* Hero Section */}
-      <section className="relative overflow-hidden bg-gradient-to-b from-blue-600/10 via-background to-background py-12 px-4 sm:px-6">
-        {/* Decorative background blurs */}
-        <div className="absolute top-[-20%] left-[-10%] h-[500px] w-[500px] rounded-full bg-blue-500/10 blur-[120px]" />
-        <div className="absolute top-[30%] right-[-10%] h-[400px] w-[400px] rounded-full bg-cyan-500/10 blur-[100px]" />
+      <section className="border-b border-border/80 px-4 py-8 sm:px-6 sm:py-10">
+        <div className="mx-auto grid max-w-6xl gap-6 lg:grid-cols-[1.1fr_0.9fr] lg:items-end">
+          <div>
+            <div className="mb-4 inline-flex items-center gap-2 rounded-lg border border-primary/20 bg-primary/10 px-3 py-1.5 text-xs font-semibold text-primary">
+              <BellRing className="h-3.5 w-3.5" />
+              Track deadlines across public and personal circulars
+            </div>
+            <h1 className="max-w-3xl text-4xl font-black tracking-tight text-foreground sm:text-5xl">
+              JobAlert BD
+            </h1>
+            <p className="mt-4 max-w-2xl text-base leading-7 text-muted-foreground sm:text-lg">
+              A practical deadline desk for Bangladeshi job circulars, alerts,
+              application links, and saved trackers.
+            </p>
 
-        <div className="mx-auto max-w-4xl text-center relative z-10">
-          <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-primary/10 text-primary text-xs font-semibold mb-4 animate-fade-in">
-            <BellRing className="h-3.5 w-3.5" />
-            Track Deadlines, Never Miss a Job
-          </span>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Link
+                href="/search"
+                className="surface-panel flex h-12 min-w-0 flex-1 items-center gap-3 rounded-lg px-4 text-sm text-muted-foreground transition-all hover:border-primary/40 hover:text-foreground lg:max-w-xl"
+              >
+                <Search className="h-5 w-5 shrink-0 text-primary" />
+                <span className="truncate">Search organization or post name...</span>
+              </Link>
+            </div>
+          </div>
 
-          <h1 className="text-4xl sm:text-5xl font-extrabold tracking-tight text-foreground mb-4">
-            Track Bangladeshi Job Circulars
-            <span className="block mt-1 bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-              With Smart Deadline Alerts
-            </span>
-          </h1>
-
-          <p className="text-base sm:text-lg text-muted-foreground max-w-xl mx-auto mb-8">
-            Create personal job trackers or follow global circulars. Get notified via In-App, Push Notifications, and Email before deadlines expire.
-          </p>
-
-          {/* Search Trigger Input */}
-          <div className="max-w-md mx-auto relative group">
-            <Link href="/search">
-              <div className="flex items-center gap-2 px-4 py-3 rounded-2xl border border-border bg-card shadow-sm hover:shadow-md hover:border-primary/50 transition-all text-muted-foreground select-none cursor-pointer">
-                <Search className="h-5 w-5 text-muted-foreground group-hover:text-primary transition-colors" />
-                <span className="text-sm">Search organization or post name...</span>
+          <div className="grid grid-cols-3 gap-3">
+            {[
+              ["Visible", totalVisible],
+              ["Urgent", deadlineSoon.length],
+              ["Saved", trackedJobIds.size],
+            ].map(([label, value]) => (
+              <div key={label} className="surface-panel rounded-lg p-4">
+                <div className="text-2xl font-black text-foreground">{value}</div>
+                <div className="mt-1 text-xs font-semibold uppercase text-muted-foreground">
+                  {label}
+                </div>
               </div>
-            </Link>
+            ))}
           </div>
         </div>
       </section>
 
-      {/* Main Sections */}
-      <div className="mx-auto max-w-5xl px-4 sm:px-6 py-6 space-y-12">
-        
-        {/* 1. Featured Jobs (Horizontal Carousel on Mobile, Grid on Desktop) */}
+      <main className="mx-auto w-full max-w-6xl space-y-10 px-4 py-8 pb-24 sm:px-6 md:pb-12">
         {featured.length > 0 && (
-          <div>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="flex items-center gap-1.5 font-extrabold text-xl sm:text-2xl text-foreground">
-                <Sparkles className="h-5 w-5 text-amber-500 fill-amber-500" />
-                Featured circulars
-              </h2>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <section>
+            <SectionHeader
+              title="Featured circulars"
+              icon={Sparkles}
+              tone="bg-amber-500/10 text-amber-700 dark:text-amber-400"
+            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {featured.map((job) => (
                 <JobCard
                   key={job.id}
@@ -85,22 +127,18 @@ export default async function HomePage() {
                 />
               ))}
             </div>
-          </div>
+          </section>
         )}
 
-        {/* 2. Deadline Soon */}
         {deadlineSoon.length > 0 && (
-          <div>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="flex items-center gap-1.5 font-extrabold text-xl sm:text-2xl text-foreground">
-                <Clock className="h-5 w-5 text-rose-500" />
-                Deadline Soon
-              </h2>
-              <Link href="/search?filter=3days" className="text-xs font-semibold text-primary flex items-center hover:underline">
-                View All <ChevronRight className="h-3 w-3" />
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <section>
+            <SectionHeader
+              title="Deadline soon"
+              href="/search?filter=3days"
+              icon={Clock}
+              tone="bg-rose-500/10 text-rose-600"
+            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {deadlineSoon.slice(0, 6).map((job) => (
                 <JobCard
                   key={job.id}
@@ -110,22 +148,18 @@ export default async function HomePage() {
                 />
               ))}
             </div>
-          </div>
+          </section>
         )}
 
-        {/* 3. Latest Circulars */}
         {latest.length > 0 && (
-          <div>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="flex items-center gap-1.5 font-extrabold text-xl sm:text-2xl text-foreground">
-                <Sparkles className="h-5 w-5 text-blue-500" />
-                Latest Circulars
-              </h2>
-              <Link href="/search?filter=newest" className="text-xs font-semibold text-primary flex items-center hover:underline">
-                View All <ChevronRight className="h-3 w-3" />
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+          <section>
+            <SectionHeader
+              title="Latest circulars"
+              href="/search?filter=newest"
+              icon={Sparkles}
+              tone="bg-emerald-500/10 text-emerald-700 dark:text-emerald-400"
+            />
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {latest.slice(0, 6).map((job) => (
                 <JobCard
                   key={job.id}
@@ -135,40 +169,11 @@ export default async function HomePage() {
                 />
               ))}
             </div>
-          </div>
+          </section>
         )}
 
-        {/* 4. Popular Tracked Jobs */}
-        {popular.length > 0 && (
-          <div>
-            <div className="flex justify-between items-center mb-4">
-              <h2 className="flex items-center gap-1.5 font-extrabold text-xl sm:text-2xl text-foreground">
-                <Flame className="h-5 w-5 text-orange-500 fill-orange-500" />
-                Most Tracked Jobs
-              </h2>
-              <Link href="/search?filter=most_saved" className="text-xs font-semibold text-primary flex items-center hover:underline">
-                View All <ChevronRight className="h-3 w-3" />
-              </Link>
-            </div>
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-              {popular.slice(0, 6).map((job) => (
-                <JobCard
-                  key={job.id}
-                  job={job}
-                  isTrackingInitial={trackedJobIds.has(job.id)}
-                  isLoggedIn={isLoggedIn}
-                />
-              ))}
-            </div>
-          </div>
-        )}
-
-        {/* Newsletter Section */}
-        <section className="pt-4">
-          <NewsletterForm />
-        </section>
-
-      </div>
+        <NewsletterForm />
+      </main>
     </div>
   );
 }

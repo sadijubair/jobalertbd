@@ -4,13 +4,34 @@ import { useLanguage } from "@/components/LanguageProvider";
 import { toggleTrackJob, createReport } from "@/app/actions/jobActions";
 import { useState, useTransition } from "react";
 import { useRouter } from "next/navigation";
-import { Calendar, Briefcase, Link as LinkIcon, DollarSign, Bell, Share2, ExternalLink, AlertTriangle, ArrowLeft, CheckCircle2 } from "lucide-react";
-import Link from "next/link";
+import { Calendar, Briefcase, Link as LinkIcon, Bell, Share2, ExternalLink, AlertTriangle, ArrowLeft, CheckCircle2 } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { TakaIcon } from "@/components/AppIcons";
+import { formatDateDMY } from "@/lib/format";
 
 interface JobDetailsClientProps {
-  job: any;
+  job: JobDetails;
   isTrackingInitial: boolean;
   isLoggedIn: boolean;
+}
+
+interface JobPost {
+  id: string;
+  name: string;
+  grade?: string | null;
+  postsCount: number;
+}
+
+interface JobDetails {
+  id: string;
+  organization: string;
+  deadline: Date | string;
+  applicationFee: number;
+  isFeatured: boolean;
+  circularLink?: string | null;
+  applicationLink?: string | null;
+  description?: string | null;
+  posts?: JobPost[];
 }
 
 export function JobDetailsClient({ job, isTrackingInitial, isLoggedIn }: JobDetailsClientProps) {
@@ -102,23 +123,26 @@ export function JobDetailsClient({ job, isTrackingInitial, isLoggedIn }: JobDeta
   return (
     <div className="space-y-6">
       {/* Back Button */}
-      <button
+      <Button
+        type="button"
+        variant="ghost"
+        size="sm"
         onClick={() => router.back()}
-        className="flex items-center gap-1.5 text-sm font-bold text-muted-foreground hover:text-foreground transition-colors"
+        className="px-0 text-muted-foreground hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" />
         {t("back")}
-      </button>
+      </Button>
 
       {/* Main Info Card */}
-      <div className="p-6 rounded-3xl border border-border bg-card shadow-sm space-y-6">
+      <div className="surface-panel space-y-6 rounded-lg p-5 sm:p-6">
         <div>
           <div className="flex flex-wrap gap-2 items-center mb-3">
-            <span className={`px-3 py-1 rounded-full text-xs font-semibold ${badgeColor}`}>
+            <span className={`rounded-md px-3 py-1 text-xs font-semibold ${badgeColor}`}>
               {deadlineTag}
             </span>
             {job.isFeatured && (
-              <span className="px-3 py-1 rounded-full bg-amber-500/10 text-amber-600 dark:text-amber-400 text-xs font-semibold">
+              <span className="rounded-md bg-amber-500/10 px-3 py-1 text-xs font-semibold text-amber-600 dark:text-amber-400">
                 Featured
               </span>
             )}
@@ -130,28 +154,24 @@ export function JobDetailsClient({ job, isTrackingInitial, isLoggedIn }: JobDeta
         </div>
 
         {/* Info Grid */}
-        <div className="grid grid-cols-2 gap-4 py-4 border-y border-border/60">
-          <div className="space-y-1">
-            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider block">
+        <div className="grid grid-cols-1 gap-3 border-y border-border/60 py-4 sm:grid-cols-2">
+          <div className="rounded-lg bg-muted/45 p-4">
+            <span className="eyebrow block">
               {t("app_fee")}
             </span>
-            <span className="font-extrabold text-foreground flex items-center gap-1">
-              <DollarSign className="h-4 w-4 text-primary" />
+            <span className="mt-1 flex items-center gap-1 font-extrabold text-foreground">
+              <TakaIcon className="h-4 w-4 text-primary" />
               {job.applicationFee > 0 ? `${job.applicationFee} BDT` : "Free"}
             </span>
           </div>
 
-          <div className="space-y-1">
-            <span className="text-xs text-muted-foreground font-semibold uppercase tracking-wider block">
+          <div className="rounded-lg bg-muted/45 p-4">
+            <span className="eyebrow block">
               {t("deadline")}
             </span>
-            <span className="font-extrabold text-foreground flex items-center gap-1">
+            <span className="mt-1 flex items-center gap-1 font-extrabold text-foreground">
               <Calendar className="h-4 w-4 text-primary" />
-              {new Date(job.deadline).toLocaleDateString(locale === "bn" ? "bn-BD" : "en-US", {
-                month: "long",
-                day: "numeric",
-                year: "numeric",
-              })}
+              {formatDateDMY(job.deadline)}
             </span>
           </div>
         </div>
@@ -165,8 +185,8 @@ export function JobDetailsClient({ job, isTrackingInitial, isLoggedIn }: JobDeta
 
           <div className="space-y-2.5">
             {job.posts && job.posts.length > 0 ? (
-              job.posts.map((post: any) => (
-                <div key={post.id} className="p-4 rounded-2xl bg-muted/50 border border-border/40 flex justify-between items-center">
+              job.posts.map((post) => (
+                <div key={post.id} className="flex items-center justify-between rounded-lg border border-border/60 bg-muted/45 p-4">
                   <div>
                     <h4 className="font-bold text-foreground text-sm sm:text-base">{post.name}</h4>
                     <span className="text-xs text-muted-foreground font-semibold">Grade {post.grade}</span>
@@ -195,7 +215,7 @@ export function JobDetailsClient({ job, isTrackingInitial, isLoggedIn }: JobDeta
                 href={job.circularLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 p-3.5 rounded-2xl border border-border bg-card font-bold text-sm text-foreground hover:bg-muted hover:border-muted-foreground/30 transition-all text-center"
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg border border-border bg-card p-3.5 text-center text-sm font-bold text-foreground transition-all hover:border-muted-foreground/30 hover:bg-muted"
               >
                 {t("circular_link")}
                 <ExternalLink className="h-4 w-4 text-muted-foreground" />
@@ -206,7 +226,7 @@ export function JobDetailsClient({ job, isTrackingInitial, isLoggedIn }: JobDeta
                 href={job.applicationLink}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="flex-1 flex items-center justify-center gap-2 p-3.5 rounded-2xl bg-primary font-bold text-sm text-primary-foreground hover:bg-primary/95 transition-all shadow-sm text-center"
+                className="flex flex-1 items-center justify-center gap-2 rounded-lg bg-primary p-3.5 text-center text-sm font-bold text-primary-foreground shadow-sm transition-all hover:bg-primary/90"
               >
                 {t("apply")}
                 <ExternalLink className="h-4 w-4" />
@@ -227,41 +247,48 @@ export function JobDetailsClient({ job, isTrackingInitial, isLoggedIn }: JobDeta
 
         {/* Main Action Buttons */}
         <div className="flex items-center gap-3 pt-6 border-t border-border/60">
-          <button
+          <Button
+            type="button"
+            variant={isTracking ? "secondary" : "outline"}
             onClick={handleTrackClick}
             disabled={isPending}
-            className={`flex-1 flex items-center justify-center gap-2 py-3.5 rounded-2xl border font-bold text-sm transition-all shadow-sm ${
+            className={`h-12 flex-1 ${
               isTracking
-                ? "bg-blue-500/10 text-blue-600 border-blue-500/30 hover:bg-blue-500/20"
-                : "bg-card text-foreground border-border hover:bg-muted"
+                ? "border-primary/30 bg-primary/10 text-primary hover:bg-primary/15"
+                : ""
             }`}
           >
-            <Bell className={`h-4.5 w-4.5 ${isTracking ? "fill-blue-500 text-blue-500" : ""}`} />
+            <Bell className={`h-4.5 w-4.5 ${isTracking ? "fill-primary text-primary" : ""}`} />
             {isTracking ? t("unsave_job") : t("save_job")}
-          </button>
+          </Button>
 
-          <button
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-lg"
             onClick={handleShare}
-            className="px-4 py-3.5 rounded-2xl border border-border bg-card text-muted-foreground hover:text-foreground hover:bg-muted transition-all"
             title="Share"
           >
             <Share2 className="h-5 w-5" />
-          </button>
+          </Button>
 
-          <button
+          <Button
+            type="button"
+            variant="outline"
+            size="icon-lg"
             onClick={() => setShowReportModal(true)}
-            className="px-4 py-3.5 rounded-2xl border border-border bg-card text-muted-foreground hover:text-rose-500 hover:bg-rose-500/5 transition-all"
+            className="text-muted-foreground hover:bg-rose-500/5 hover:text-rose-500"
             title={t("report_issue")}
           >
             <AlertTriangle className="h-5 w-5" />
-          </button>
+          </Button>
         </div>
       </div>
 
       {/* Report Issue Modal */}
       {showReportModal && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-xs px-4">
-          <div className="w-full max-w-md bg-card border border-border p-6 rounded-3xl shadow-xl space-y-4 animate-scale-in">
+          <div className="w-full max-w-md space-y-4 rounded-lg border border-border bg-card p-6 shadow-xl animate-scale-in">
             <div className="flex justify-between items-center">
               <h3 className="font-extrabold text-lg text-foreground flex items-center gap-2">
                 <AlertTriangle className="h-5 w-5 text-rose-500" />
@@ -288,7 +315,7 @@ export function JobDetailsClient({ job, isTrackingInitial, isLoggedIn }: JobDeta
                   <select
                     value={reportType}
                     onChange={(e) => setReportType(e.target.value)}
-                    className="w-full px-3 py-2.5 rounded-xl border border-border bg-muted text-sm text-foreground focus:outline-none"
+                    className="w-full rounded-lg border border-border bg-muted px-3 py-2.5 text-sm text-foreground focus:outline-none"
                   >
                     <option value="WRONG_DEADLINE">Wrong Deadline Date</option>
                     <option value="BROKEN_LINK">Broken Application/Circular Link</option>
@@ -305,17 +332,17 @@ export function JobDetailsClient({ job, isTrackingInitial, isLoggedIn }: JobDeta
                     placeholder="Describe the issue in detail..."
                     required
                     rows={4}
-                    className="w-full px-3 py-2 rounded-xl border border-border bg-card text-sm text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary"
+                    className="w-full rounded-lg border border-border bg-card px-3 py-2 text-sm text-foreground focus:border-primary focus:outline-none focus:ring-3 focus:ring-primary/20"
                   />
                 </div>
 
-                <button
+                <Button
                   type="submit"
                   disabled={isReporting}
-                  className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/95 transition-all shadow-sm"
+                  className="w-full"
                 >
                   {isReporting ? "Submitting..." : "Submit Report"}
-                </button>
+                </Button>
               </form>
             )}
           </div>

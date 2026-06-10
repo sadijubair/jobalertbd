@@ -63,25 +63,26 @@ export default async function WorkspaceDashboardPage() {
   return (
     <div className="space-y-6">
       <div>
-        <h1 className="text-3xl font-extrabold text-foreground tracking-tight">
+        <p className="eyebrow mb-2">Workspace overview</p>
+        <h1 className="text-3xl font-extrabold tracking-tight text-foreground">
           Admin Dashboard
         </h1>
-        <p className="text-sm text-muted-foreground mt-0.5">
+        <p className="mt-1 text-sm text-muted-foreground">
           Overview of JobAlert BD system metrics and management controls.
         </p>
       </div>
 
       {/* Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {statCards.map((card) => {
           const Icon = card.icon;
           return (
             <Link
               key={card.title}
               href={card.href}
-              className="p-6 rounded-3xl border border-border bg-card shadow-sm hover:shadow-md transition-all flex items-start gap-4"
+              className="surface-panel flex items-start gap-4 rounded-lg p-5 transition-all hover:border-primary/35 hover:shadow-md"
             >
-              <div className={`h-12 w-12 rounded-2xl flex items-center justify-center shrink-0 ${card.color}`}>
+              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-lg ${card.color}`}>
                 <Icon className="h-6 w-6" />
               </div>
               <div className="space-y-0.5">

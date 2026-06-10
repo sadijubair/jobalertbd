@@ -4,6 +4,7 @@ import { resolveReport } from "@/app/actions/workspaceActions";
 import { useState, useTransition } from "react";
 import { AlertTriangle, Check, User, Clock, Link2, HelpCircle } from "lucide-react";
 import Link from "next/link";
+import { formatDateDMY } from "@/lib/format";
 
 interface ReportsClientProps {
   initialReports: any[];
@@ -56,7 +57,7 @@ export function ReportsClient({ initialReports }: ReportsClientProps) {
           {reports.map((report) => (
             <div
               key={report.id}
-              className={`p-5 rounded-2xl border bg-card shadow-xs flex flex-col sm:flex-row justify-between items-start gap-4 transition-opacity ${
+              className={`p-5 rounded-lg border bg-card shadow-xs flex flex-col sm:flex-row justify-between items-start gap-4 transition-opacity ${
                 report.status === "RESOLVED" ? "opacity-60 border-border" : "border-rose-500/20"
               }`}
             >
@@ -82,7 +83,7 @@ export function ReportsClient({ initialReports }: ReportsClientProps) {
                   <h4 className="font-bold text-foreground text-sm">
                     Target Job: <Link href={`/jobs/${report.job.id}`} className="text-primary hover:underline font-extrabold">{report.job.organization}</Link>
                   </h4>
-                  <p className="text-xs text-muted-foreground bg-muted p-3 rounded-xl whitespace-pre-line leading-relaxed">
+                  <p className="text-xs text-muted-foreground bg-muted p-3 rounded-lg whitespace-pre-line leading-relaxed">
                     {report.description}
                   </p>
                 </div>
@@ -93,7 +94,7 @@ export function ReportsClient({ initialReports }: ReportsClientProps) {
                     Reporter: {report.reporter?.name || "Guest User"}
                   </span>
                   <span>
-                    Reported on: {new Date(report.createdAt).toLocaleDateString()}
+                    Reported on: {formatDateDMY(report.createdAt)}
                   </span>
                 </div>
               </div>
@@ -103,7 +104,7 @@ export function ReportsClient({ initialReports }: ReportsClientProps) {
                 <button
                   onClick={() => handleResolve(report.id)}
                   disabled={isPending}
-                  className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 py-2 rounded-xl bg-primary text-primary-foreground font-bold text-xs hover:bg-primary/95 transition-all shadow-sm shrink-0"
+                  className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-3 py-2 rounded-lg bg-primary text-primary-foreground font-bold text-xs hover:bg-primary/95 transition-all shadow-sm shrink-0"
                 >
                   <Check className="h-4 w-4" />
                   Mark Resolved
@@ -113,7 +114,7 @@ export function ReportsClient({ initialReports }: ReportsClientProps) {
           ))}
         </div>
       ) : (
-        <div className="py-24 text-center border-2 border-dashed border-border rounded-3xl bg-card">
+        <div className="py-24 text-center border-2 border-dashed border-border rounded-lg bg-card">
           <HelpCircle className="h-16 w-16 text-muted-foreground mx-auto mb-4 stroke-1" />
           <h3 className="font-extrabold text-lg text-foreground mb-1">No reports flagged</h3>
           <p className="text-sm text-muted-foreground max-w-xs mx-auto">

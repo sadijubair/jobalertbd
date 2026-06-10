@@ -12,6 +12,7 @@ interface SessionUser {
   name: string;
   email: string;
   role: "USER" | "ADMIN";
+  avatar?: string | null;
 }
 
 // Encrypt string using AES-256-CBC
@@ -73,11 +74,13 @@ export async function getSession(): Promise<SessionUser | null> {
         where: { id: session.userId },
       });
       if (!admin) return null;
+      session.avatar = null;
     } else {
       const user = await db.user.findUnique({
         where: { id: session.userId },
       });
       if (!user) return null;
+      session.avatar = user.avatar;
     }
     
     return session;

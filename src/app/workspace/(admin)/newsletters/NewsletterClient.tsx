@@ -3,6 +3,7 @@
 import { sendNewsletter } from "@/app/actions/workspaceActions";
 import { useState, useTransition } from "react";
 import { Mail, Send, Users, CheckCircle } from "lucide-react";
+import { formatDateDMY } from "@/lib/format";
 
 interface NewsletterClientProps {
   subscribers: any[];
@@ -46,9 +47,9 @@ export function NewsletterClient({ subscribers }: NewsletterClientProps) {
           </p>
         </div>
 
-        <div className="p-6 rounded-3xl border border-border bg-card shadow-sm">
+        <div className="p-6 rounded-lg border border-border bg-card shadow-sm">
           {sentCount !== null && (
-            <div className="mb-4 flex items-center gap-2 p-3.5 rounded-xl bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 text-xs font-bold">
+            <div className="mb-4 flex items-center gap-2 p-3.5 rounded-lg bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20 text-xs font-bold">
               <CheckCircle className="h-4.5 w-4.5" />
               <span>Newsletter successfully sent to {sentCount} subscribers!</span>
             </div>
@@ -62,7 +63,7 @@ export function NewsletterClient({ subscribers }: NewsletterClientProps) {
                 <select
                   value={type}
                   onChange={(e) => setType(e.target.value)}
-                  className="w-full px-3 py-2.5 rounded-xl border border-border bg-muted text-sm text-foreground focus:outline-none"
+                  className="w-full px-3 py-2.5 rounded-lg border border-border bg-muted text-sm text-foreground focus:outline-none"
                 >
                   <option value="ALL">All Subscribers</option>
                   <option value="INSTANT">Instant Alert Subscribers</option>
@@ -80,7 +81,7 @@ export function NewsletterClient({ subscribers }: NewsletterClientProps) {
                   value={subject}
                   onChange={(e) => setSubject(e.target.value)}
                   placeholder="e.g. Weekly Job Alerts: 12 New Circulars & Upcoming Deadlines"
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
+                  className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
                 />
               </div>
 
@@ -93,7 +94,7 @@ export function NewsletterClient({ subscribers }: NewsletterClientProps) {
                   value={body}
                   onChange={(e) => setBody(e.target.value)}
                   placeholder="Type newsletter contents..."
-                  className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
+                  className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 text-sm"
                 />
               </div>
             </div>
@@ -101,7 +102,7 @@ export function NewsletterClient({ subscribers }: NewsletterClientProps) {
             <button
               type="submit"
               disabled={isPending}
-              className="w-full py-3.5 rounded-xl bg-primary text-primary-foreground font-extrabold text-sm hover:bg-primary/95 transition-all shadow-md flex justify-center items-center gap-1.5"
+              className="w-full py-3.5 rounded-lg bg-primary text-primary-foreground font-extrabold text-sm hover:bg-primary/95 transition-all shadow-md flex justify-center items-center gap-1.5"
             >
               <Send className="h-4 w-4" />
               {isPending ? "Sending..." : "Send Newsletter"}
@@ -117,14 +118,14 @@ export function NewsletterClient({ subscribers }: NewsletterClientProps) {
           Subscribers ({subscribers.length})
         </h2>
 
-        <div className="p-4 rounded-3xl border border-border bg-card max-h-[460px] overflow-y-auto space-y-3 shadow-xs">
+        <div className="p-4 rounded-lg border border-border bg-card max-h-[460px] overflow-y-auto space-y-3 shadow-xs">
           {subscribers.length > 0 ? (
             subscribers.map((sub) => (
               <div key={sub.id} className="flex justify-between items-center text-xs border-b border-border/40 pb-2.5 last:border-0 last:pb-0">
                 <div className="space-y-0.5 truncate pr-2">
                   <span className="font-bold text-foreground truncate block">{sub.email}</span>
                   <span className="text-[10px] text-muted-foreground block">
-                    Subscribed: {new Date(sub.createdAt).toLocaleDateString()}
+                    Subscribed: {formatDateDMY(sub.createdAt)}
                   </span>
                 </div>
                 <span className="px-2 py-0.5 rounded-full bg-primary/10 text-primary text-[9px] font-bold tracking-wider">

@@ -22,13 +22,17 @@ export default async function SearchPage() {
       {/* Global Header */}
       <Header session={session} />
 
-      <main className="flex-1 mx-auto w-full max-w-5xl px-4 sm:px-6 py-6 pb-24 md:pb-12">
-        <h1 className="text-2xl sm:text-3xl font-extrabold text-foreground mb-2">
-          Discover Circulars
-        </h1>
-        <p className="text-sm text-muted-foreground mb-6">
-          Find and track deadlines of any active job circular published by Workspace Admins.
-        </p>
+      <main className="mx-auto w-full max-w-6xl flex-1 px-4 py-6 pb-24 sm:px-6 md:pb-12">
+        <div className="mb-6 border-b border-border/80 pb-5">
+          <p className="eyebrow mb-2">Circular search</p>
+          <h1 className="text-2xl font-extrabold tracking-tight text-foreground sm:text-3xl">
+            Discover Circulars
+          </h1>
+          <p className="mt-2 max-w-2xl text-sm leading-6 text-muted-foreground">
+            Find active job circulars, filter by urgency, and save the deadlines
+            you need to track.
+          </p>
+        </div>
 
         <SearchClient
           initialJobs={res.jobs}

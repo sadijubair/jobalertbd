@@ -28,9 +28,9 @@ export function WorkspaceLogin() {
   };
 
   return (
-    <div className="w-full max-w-md p-6 sm:p-8 rounded-3xl border border-border bg-card shadow-lg space-y-6">
+    <div className="w-full max-w-md p-6 sm:p-8 rounded-lg border border-border bg-card shadow-lg space-y-6">
       <div className="text-center space-y-2">
-        <div className="h-12 w-12 rounded-2xl bg-primary/10 flex items-center justify-center text-primary mx-auto">
+        <div className="h-12 w-12 rounded-lg bg-primary/10 flex items-center justify-center text-primary mx-auto">
           <Shield className="h-6 w-6" />
         </div>
         <h1 className="text-2xl font-extrabold text-foreground tracking-tight">
@@ -42,7 +42,7 @@ export function WorkspaceLogin() {
       </div>
 
       {error && (
-        <div className="flex items-center gap-2 p-3.5 rounded-xl bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 text-xs font-bold">
+        <div className="flex items-center gap-2 p-3.5 rounded-lg bg-rose-500/10 text-rose-600 dark:bg-rose-500/20 text-xs font-bold">
           <AlertCircle className="h-4 w-4 shrink-0" />
           <span>{error}</span>
         </div>
@@ -61,7 +61,7 @@ export function WorkspaceLogin() {
             required
             defaultValue="admin"
             placeholder="admin"
-            className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
+            className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
           />
         </div>
 
@@ -77,14 +77,14 @@ export function WorkspaceLogin() {
             required
             defaultValue="admin123"
             placeholder="••••••••"
-            className="w-full px-4 py-3 rounded-xl border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
+            className="w-full px-4 py-3 rounded-lg border border-border bg-card text-foreground focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all text-sm"
           />
         </div>
 
         <button
           type="submit"
           disabled={isPending}
-          className="w-full py-3 rounded-xl bg-primary text-primary-foreground font-extrabold text-sm hover:bg-primary/95 transition-all shadow-md active:scale-98 disabled:opacity-50"
+          className="w-full py-3 rounded-lg bg-primary text-primary-foreground font-extrabold text-sm hover:bg-primary/95 transition-all shadow-md  disabled:opacity-50"
         >
           {isPending ? "Logging in..." : "Login to Workspace"}
         </button>
@@ -97,7 +97,7 @@ export function WorkspaceLogin() {
         </Link>
       </div>
 
-      <div className="p-4 rounded-2xl bg-blue-500/5 border border-blue-500/10 text-xs text-muted-foreground space-y-1">
+      <div className="p-4 rounded-lg bg-blue-500/5 border border-blue-500/10 text-xs text-muted-foreground space-y-1">
         <p className="font-bold text-blue-600 dark:text-blue-400">First Time Setup Hint:</p>
         <p>No admin credentials exist yet. Logging in with <span className="font-bold">admin</span> / <span className="font-bold">admin123</span> will automatically seed a default administrator account.</p>
       </div>

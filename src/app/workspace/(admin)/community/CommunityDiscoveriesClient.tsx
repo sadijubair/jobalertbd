@@ -2,7 +2,8 @@
 
 import { publishCommunityJobGlobally } from "@/app/actions/workspaceActions";
 import { useState, useTransition } from "react";
-import { Globe, Users, Calendar, Briefcase, ExternalLink, Check } from "lucide-react";
+import { Globe, Users, Calendar, Briefcase, ExternalLink } from "lucide-react";
+import { formatDateDMY } from "@/lib/format";
 
 interface CommunityDiscoveriesClientProps {
   initialJobs: any[];
@@ -39,7 +40,7 @@ export function CommunityDiscoveriesClient({ initialJobs }: CommunityDiscoveries
           {jobs.map((job) => {
             const totalVacancy = job.posts?.reduce((sum: number, p: any) => sum + p.postsCount, 0) || 0;
             return (
-              <div key={job.id} className="p-5 rounded-2xl border border-border bg-card shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+              <div key={job.id} className="p-5 rounded-lg border border-border bg-card shadow-xs flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
                 <div className="space-y-2">
                   <div className="flex gap-2.5 items-center flex-wrap">
                     <h3 className="font-extrabold text-foreground text-lg">{job.organization}</h3>
@@ -60,7 +61,7 @@ export function CommunityDiscoveriesClient({ initialJobs }: CommunityDiscoveries
                     </span>
                     <span className="flex items-center gap-1">
                       <Calendar className="h-3.5 w-3.5" />
-                      DL: {new Date(job.deadline).toLocaleDateString()}
+                      DL: {formatDateDMY(job.deadline)}
                     </span>
                     {job.circularLink && (
                       <a
@@ -80,7 +81,7 @@ export function CommunityDiscoveriesClient({ initialJobs }: CommunityDiscoveries
                 <button
                   onClick={() => handlePublishGlobally(job.id)}
                   disabled={isPending}
-                  className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-xl bg-primary text-primary-foreground font-bold text-xs hover:bg-primary/95 transition-all shadow-sm shrink-0"
+                  className="w-full sm:w-auto flex items-center justify-center gap-1.5 px-4 py-2.5 rounded-lg bg-primary text-primary-foreground font-bold text-xs hover:bg-primary/95 transition-all shadow-sm shrink-0"
                 >
                   <Globe className="h-4 w-4" />
                   Publish Globally
@@ -90,7 +91,7 @@ export function CommunityDiscoveriesClient({ initialJobs }: CommunityDiscoveries
           })}
         </div>
       ) : (
-        <div className="py-24 text-center border-2 border-dashed border-border rounded-3xl bg-card">
+        <div className="py-24 text-center border-2 border-dashed border-border rounded-lg bg-card">
           <Globe className="h-16 w-16 text-muted-foreground mx-auto mb-4 stroke-1" />
           <h3 className="font-extrabold text-lg text-foreground mb-1">No discoveries to review</h3>
           <p className="text-sm text-muted-foreground max-w-xs mx-auto">

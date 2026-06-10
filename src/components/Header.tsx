@@ -1,10 +1,27 @@
 "use client";
 
 import Link from "next/link";
-import { Sun, Moon, Languages, LogIn, LayoutDashboard, LogOut, User, ChevronDown } from "lucide-react";
+import {
+  BriefcaseBusiness,
+  CircleUserRound,
+  LayoutDashboard,
+  LogIn,
+  LogOut,
+  Moon,
+  Sun,
+  User,
+} from "lucide-react";
 import { useLanguage } from "@/components/LanguageProvider";
 import { useTheme } from "next-themes";
-import { useEffect, useState, useRef } from "react";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+} from "@/components/ui/dropdown-menu";
+import { Button } from "@/components/ui/button";
+import { LanguageSwitchIcon } from "@/components/AppIcons";
 
 interface HeaderProps {
   session: {
@@ -12,147 +29,132 @@ interface HeaderProps {
     name: string;
     email: string;
     role: "USER" | "ADMIN";
+    avatar?: string | null;
   } | null;
 }
 
 export function Header({ session }: HeaderProps) {
   const { locale, setLocale, t } = useLanguage();
   const { theme, setTheme } = useTheme();
-  const [mounted, setMounted] = useState(false);
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    setMounted(true);
-
-    function handleClickOutside(event: MouseEvent) {
-      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-        setDropdownOpen(false);
-      }
-    }
-
-    document.addEventListener("mousedown", handleClickOutside);
-    return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-    };
-  }, []);
 
   const toggleLanguage = () => {
     setLocale(locale === "en" ? "bn" : "en");
   };
 
   const toggleTheme = () => {
-    if (!mounted) return;
     setTheme(theme === "dark" ? "light" : "dark");
   };
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b border-border bg-card/80 backdrop-blur-md px-4 py-3">
-      <div className="mx-auto flex max-w-5xl items-center justify-between">
-        {/* Brand */}
-        <Link href="/" className="flex items-center gap-2 group">
-          <div className="h-9 w-9 rounded-xl bg-gradient-to-tr from-blue-600 to-cyan-500 flex items-center justify-center text-white font-bold text-lg shadow-md group-hover:scale-105 transition-transform duration-200">
-            JA
+    <header className="sticky top-0 z-40 w-full border-b border-border/80 bg-background/90 px-4 py-3 backdrop-blur-md">
+      <div className="mx-auto flex max-w-6xl items-center justify-between">
+        <Link href="/" className="group flex items-center gap-2">
+          <div className="flex h-9 w-9 items-center justify-center rounded-lg border border-primary/20 bg-primary text-primary-foreground shadow-sm transition-transform duration-200 group-hover:-translate-y-0.5">
+            <BriefcaseBusiness className="h-5 w-5" />
           </div>
-          <span className="font-extrabold text-xl tracking-tight bg-gradient-to-r from-blue-600 to-cyan-500 bg-clip-text text-transparent">
-            JobAlert <span className="text-foreground font-medium text-sm">BD</span>
+          <span className="font-extrabold text-xl tracking-tight text-foreground">
+            JobAlert
+          </span>
+          <span className="hidden rounded-md border border-border bg-card px-1.5 py-0.5 text-xs font-semibold text-muted-foreground sm:inline-flex">
+            BD
           </span>
         </Link>
 
-        {/* Action Controls */}
         <div className="flex items-center gap-2">
-          {/* Language Toggle */}
-          <button
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
             onClick={toggleLanguage}
-            className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-            title="Toggle Language / ভাষা পরিবর্তন"
+            title="Toggle language"
           >
-            <Languages className="h-5 w-5" />
-          </button>
+            <LanguageSwitchIcon className="h-5 w-5" />
+          </Button>
 
-          {/* Theme Toggle */}
-          <button
+          <Button
+            type="button"
+            variant="ghost"
+            size="icon"
             onClick={toggleTheme}
-            className="p-2 rounded-lg hover:bg-muted text-muted-foreground hover:text-foreground transition-colors"
-            title="Toggle Theme"
+            title="Toggle theme"
           >
-            {mounted && theme === "dark" ? (
+            {theme === "dark" ? (
               <Sun className="h-5 w-5 text-amber-500" />
             ) : (
               <Moon className="h-5 w-5" />
             )}
-          </button>
+          </Button>
 
-          {/* User Profile Dropdown / Login */}
           {session ? (
-            <div className="relative ml-1" ref={dropdownRef}>
-              <button
-                onClick={() => setDropdownOpen(!dropdownOpen)}
-                className="flex items-center gap-1.5 p-1 rounded-full hover:bg-muted transition-all border border-border/50 group"
-              >
-                <div className="h-8 w-8 rounded-full overflow-hidden border border-primary/20 group-hover:ring-2 group-hover:ring-primary/30 transition-all">
-                  <img
-                    src={`https://api.dicebear.com/7.x/adventurer/svg?seed=${encodeURIComponent(session.name)}`}
-                    alt={session.name}
-                    className="h-full w-full object-cover"
-                  />
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button type="button" variant="ghost" size="icon" className="rounded-full">
+                  {session.avatar ? (
+                    <span className="h-8 w-8 overflow-hidden rounded-full border border-border/80">
+                      <img
+                        src={session.avatar}
+                        alt={session.name}
+                        className="h-full w-full object-cover"
+                      />
+                    </span>
+                  ) : (
+                    <CircleUserRound className="h-8 w-8 text-muted-foreground" />
+                  )}
+                </Button>
+              </DropdownMenuTrigger>
+
+              <DropdownMenuContent align="end" className="w-56 border-border p-2">
+                <div className="px-2.5 py-2">
+                  <p className="truncate text-sm font-bold text-foreground">
+                    {session.name}
+                  </p>
+                  <p className="truncate text-xs text-muted-foreground">
+                    {session.email}
+                  </p>
                 </div>
-                <ChevronDown className="h-4 w-4 text-muted-foreground group-hover:text-foreground transition-colors hidden sm:block pr-0.5" />
-              </button>
 
-              {/* Dropdown Menu Container */}
-              {dropdownOpen && (
-                <div className="absolute right-0 mt-2 w-56 rounded-2xl border border-border bg-card/95 backdrop-blur-md p-2.5 shadow-xl animate-fade-in z-50">
-                  {/* User details header */}
-                  <div className="px-2.5 py-2 mb-1">
-                    <p className="text-sm font-bold text-foreground truncate">{session.name}</p>
-                    <p className="text-xs text-muted-foreground truncate">{session.email}</p>
-                  </div>
-                  
-                  <div className="h-px bg-border my-1" />
+                <DropdownMenuSeparator />
 
-                  {/* Dashboard link */}
+                <DropdownMenuItem asChild>
                   <Link
                     href={session.role === "ADMIN" ? "/workspace/dashboard" : "/app/dashboard"}
-                    onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-2.5 w-full px-2.5 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-all font-medium"
+                    className="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
                   >
                     <LayoutDashboard className="h-4 w-4" />
                     {session.role === "ADMIN" ? t("nav_workspace") : t("dashboard_title")}
                   </Link>
+                </DropdownMenuItem>
 
-                  {/* Profile link */}
+                <DropdownMenuItem asChild>
                   <Link
                     href="/app/profile"
-                    onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-2.5 w-full px-2.5 py-2 text-sm text-muted-foreground hover:text-foreground hover:bg-muted rounded-xl transition-all font-medium"
+                    className="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-medium text-muted-foreground hover:text-foreground"
                   >
                     <User className="h-4 w-4" />
                     {t("nav_profile")}
                   </Link>
+                </DropdownMenuItem>
 
-                  <div className="h-px bg-border my-1" />
+                <DropdownMenuSeparator />
 
-                  {/* Logout link */}
+                <DropdownMenuItem asChild variant="destructive">
                   <a
                     href="/api/auth/logout"
-                    onClick={() => setDropdownOpen(false)}
-                    className="flex items-center gap-2.5 w-full px-2.5 py-2 text-sm text-rose-500 hover:text-rose-600 hover:bg-rose-500/10 rounded-xl transition-all font-semibold"
+                    className="flex w-full cursor-pointer items-center gap-2.5 rounded-md px-2.5 py-2 text-sm font-semibold"
                   >
                     <LogOut className="h-4 w-4" />
                     {t("logout")}
                   </a>
-                </div>
-              )}
-            </div>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           ) : (
-            <Link
-              href="/api/auth/google"
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-primary text-primary-foreground text-xs font-semibold hover:bg-primary/95 transition-all shadow-sm"
-            >
-              <LogIn className="h-3.5 w-3.5" />
-              {t("login")}
-            </Link>
+            <Button asChild size="sm">
+              <Link href="/api/auth/google">
+                <LogIn className="h-3.5 w-3.5" />
+                {t("login")}
+              </Link>
+            </Button>
           )}
         </div>
       </div>

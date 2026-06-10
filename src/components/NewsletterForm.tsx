@@ -4,6 +4,9 @@ import { useLanguage } from "@/components/LanguageProvider";
 import { subscribeNewsletter } from "@/app/actions/jobActions";
 import { useState, useTransition } from "react";
 import { Mail, CheckCircle, AlertCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Field, FieldGroup, FieldLabel } from "@/components/ui/field";
 
 export function NewsletterForm() {
   const { t } = useLanguage();
@@ -29,65 +32,66 @@ export function NewsletterForm() {
   };
 
   return (
-    <div className="relative p-6 sm:p-8 rounded-3xl border border-blue-500/10 bg-gradient-to-br from-blue-600/5 via-card to-cyan-500/5 shadow-sm overflow-hidden">
-      {/* Decorative Blur */}
-      <div className="absolute -bottom-8 -right-8 w-24 h-24 rounded-full bg-blue-500/10 blur-xl" />
-
-      <div className="relative z-10 max-w-2xl">
-        <h3 className="text-xl sm:text-2xl font-extrabold text-foreground mb-2 flex items-center gap-2">
-          <Mail className="h-6 w-6 text-primary" />
-          {t("newsletter_title")}
-        </h3>
-        <p className="text-sm sm:text-base text-muted-foreground mb-6">
-          {t("newsletter_desc")}
-        </p>
+    <section className="surface-panel overflow-hidden rounded-lg p-5 sm:p-6">
+      <div className="grid gap-6 md:grid-cols-[0.9fr_1.1fr] md:items-center">
+        <div>
+          <div className="mb-3 flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10 text-primary">
+            <Mail className="h-5 w-5" />
+          </div>
+          <h3 className="mb-2 text-xl font-extrabold text-foreground sm:text-2xl">
+            {t("newsletter_title")}
+          </h3>
+          <p className="text-sm leading-6 text-muted-foreground sm:text-base">
+            {t("newsletter_desc")}
+          </p>
+        </div>
 
         <form onSubmit={handleSubmit} className="space-y-4">
-          <div className="flex flex-col sm:flex-row gap-2 max-w-xl">
+          <div className="flex flex-col gap-2 sm:flex-row">
             <input
               type="email"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder={t("email_placeholder")}
               required
-              className="flex-1 px-4 py-3 rounded-xl border border-border bg-card text-sm focus:outline-none focus:ring-2 focus:ring-primary/40 focus:border-primary transition-all"
+              className="h-10 flex-1 rounded-lg border border-input bg-background px-3 text-sm shadow-xs transition-all focus:border-primary focus:outline-none focus:ring-3 focus:ring-primary/20"
             />
-            <button
+            <Button
               type="submit"
               disabled={isPending}
-              className="px-6 py-3 rounded-xl bg-primary text-primary-foreground font-bold text-sm hover:bg-primary/95 transition-all shadow-sm active:scale-98 disabled:opacity-50 disabled:pointer-events-none"
+              className="h-10"
             >
               {isPending ? t("subscribing") : t("subscribe")}
-            </button>
+            </Button>
           </div>
 
           {/* Digest Types Selection */}
-          <div className="flex items-center gap-4 text-xs font-semibold text-muted-foreground">
-            <span>Frequency:</span>
+          <FieldGroup className="gap-2" data-slot="checkbox-group">
+            <span className="text-xs font-semibold text-muted-foreground">Frequency:</span>
             {[
               { id: "INSTANT", label: "Instant Alert" },
               { id: "DAILY", label: "Daily Digest" },
               { id: "WEEKLY", label: "Weekly Digest" },
             ].map((freq) => (
-              <label key={freq.id} className="flex items-center gap-1.5 cursor-pointer select-none">
-                <input
-                  type="radio"
-                  name="digestType"
-                  value={freq.id}
+              <Field key={freq.id} orientation="horizontal" className="w-fit">
+                <Checkbox
+                  id={`digest-${freq.id.toLowerCase()}`}
                   checked={digestType === freq.id}
-                  onChange={() => setDigestType(freq.id)}
-                  className="accent-primary"
+                  onCheckedChange={() => setDigestType(freq.id)}
                 />
-                <span className={digestType === freq.id ? "text-foreground" : ""}>
+                <FieldLabel
+                  htmlFor={`digest-${freq.id.toLowerCase()}`}
+                  className={digestType === freq.id ? "text-foreground" : "text-muted-foreground"}
+                >
                   {freq.label}
-                </span>
-              </label>
+                </FieldLabel>
+              </Field>
             ))}
-          </div>
+          </FieldGroup>
         </form>
 
         {message && (
-          <div className={`mt-4 flex items-center gap-2 text-sm font-semibold p-3 rounded-xl ${
+          <div className={`mt-4 flex items-center gap-2 rounded-lg p-3 text-sm font-semibold ${
             message.type === "success"
               ? "bg-emerald-500/10 text-emerald-600 dark:bg-emerald-500/20"
               : "bg-rose-500/10 text-rose-600 dark:bg-rose-500/20"
@@ -101,6 +105,6 @@ export function NewsletterForm() {
           </div>
         )}
       </div>
-    </div>
+    </section>
   );
 }
